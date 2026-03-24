@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Popup from "../misc/popup";
 import { invoke } from "@tauri-apps/api/core";
-import { saveItem } from "tauri-plugin-keychain";
 
 interface WelcomeProps {
   onLogin: (id: number) => void;
@@ -19,6 +18,7 @@ function Welcome({ onLogin }: WelcomeProps) {
   const handleConfirmId = () => {
     const id = parseInt(inputValue);
     if (!isNaN(id)) {
+      localStorage.setItem("login_method", "user_id");
       onLogin(id);
     } else {
       alert("Please enter a valid numeric ID");
@@ -27,10 +27,10 @@ function Welcome({ onLogin }: WelcomeProps) {
 
   const handleConfirmCookie = async () => {
     try {
-      const userId = await invoke<number>("verify_cookie", {
+      const userId = await invoke<number>("login_with_cookie", {
         cookie: inputValue,
       });
-      await saveItem("roblosecurity", inputValue);
+      localStorage.setItem("login_method", "cookie");
       onLogin(userId);
     } catch (err) {
       console.error(err);
@@ -38,9 +38,8 @@ function Welcome({ onLogin }: WelcomeProps) {
     }
   };
 
-  // Helper to open the view and the disclaimer at the same time
   const selectMethod = (nextView: ViewState) => {
-    setInputValue(""); // Clear input when switching
+    setInputValue("");
     setView(nextView);
     setShowPopup(true);
   };

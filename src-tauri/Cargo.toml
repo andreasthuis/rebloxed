@@ -29,4 +29,5 @@ tokio = { version = "1.50.0", features = ["full"] }
 reqwest = { version = "0.13.2", default-features = false, features = ["cookies", "json", "rustls"] }
 aes-gcm = "0.10.3"  
 rand = "0.10.0"  
-tauri-plugin-keychain = "2.0.2"
+tauri-plugin-keyring = "0.1.0"
+tauri-plugin-log = "2"

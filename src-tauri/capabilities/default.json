@@ -2,12 +2,13 @@
   "$schema": "../gen/schemas/desktop-capability.json",
   "identifier": "default",
   "description": "Capability for the main window",
-  "windows": ["main"],
+  "windows": [
+    "main"
+  ],
   "permissions": [
     "core:default",
     "http:default",
     "shell:default",
-    "keychain:default",
     {
       "identifier": "http:allow-fetch",
       "allow": [
@@ -18,7 +19,15 @@
     },
     {
       "identifier": "shell:allow-open",
-      "allow": [{ "schemes": ["roblox-player", "http", "https"] }]
+      "allow": [
+        {
+          "schemes": [
+            "roblox-player",
+            "http",
+            "https"
+          ]
+        }
+      ]
     },
     {
       "identifier": "shell:allow-execute",
@@ -26,20 +35,39 @@
         {
           "name": "open-roblox",
           "cmd": "cmd",
-          "args": ["/C", "start", { "validator": "^roblox-player:.+" }]
+          "args": [
+            "/C",
+            "start",
+            {
+              "validator": "^roblox-player:.+"
+            }
+          ]
         },
         {
           "name": "launch-sober",
           "cmd": "flatpak",
-          "args": ["run", "org.vinegarhq.Sober", "--", { "validator": ".+" }]
+          "args": [
+            "run",
+            "org.vinegarhq.Sober",
+            "--",
+            {
+              "validator": ".+"
+            }
+          ]
         },
         {
           "name": "xdg-open",
           "cmd": "xdg-open",
-          "args": [{ "validator": ".+" }]
+          "args": [
+            {
+              "validator": ".+"
+            }
+          ]
         }
       ]
     },
-    "os:default"
+    "os:default",
+    "keyring:default",
+    "log:default"
   ]
 }

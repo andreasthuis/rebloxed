@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { fetch } from "@tauri-apps/plugin-http";
 import { invoke } from "@tauri-apps/api/core";
+import UserProfileDetails from "../User/UserProfileModal";
+import GroupDetails from "../Group/GroupModal"
 
 interface GameDetailsProps {
   game: any;
@@ -11,6 +13,22 @@ const GameDetails = ({ game }: GameDetailsProps) => {
   const [servers, setServers] = useState<any[]>([]);
   const [loadingServers, setLoadingServers] = useState(false);
 
+  const [showProfile, setShowProfile] = useState(false);
+  const [profileUserId, setProfileUserId] = useState<string | null>(null);
+
+  const [showGroup, setShowGroup] = useState(false);
+  const [groupId, setGroupId] = useState<string | null>(null);
+
+  const openCreatorPage = () => {
+    if (game?.creator?.type === "User") {
+      setProfileUserId(game.creator.id.toString());
+      setShowProfile(true);
+    } else if (game?.creator?.type === "Group") {
+      setGroupId(game.creator.id.toString());
+      setShowGroup(true)
+    }
+  };
+
   const formatNum = (num: number) => {
     return Intl.NumberFormat("en-US", {
       notation: "compact",
@@ -19,7 +37,9 @@ const GameDetails = ({ game }: GameDetailsProps) => {
   };
 
   const launchRoblox = async (placeId: number, serverId?: string) => {
-    console.log(`Attempting to launch Roblox for Place ID: ${placeId} with Server ID: ${serverId || "N/A"}`);
+    console.log(
+      `Attempting to launch Roblox for Place ID: ${placeId} with Server ID: ${serverId || "N/A"}`,
+    );
     try {
       console.log(`Requesting backend to launch Place ID: ${placeId}`);
       await invoke("launch_roblox", {
@@ -60,7 +80,9 @@ const GameDetails = ({ game }: GameDetailsProps) => {
         <img src={game.thumbnail} alt={game.name} className="details-icon" />
         <div className="details-info">
           <h1>{game.name}</h1>
-          <p className="creator">By @{game?.creator?.name || "Unknown"}</p>
+          <p className="creator" onClick={openCreatorPage}>
+            By @{game?.creator?.name || "Unknown"}
+          </p>
           <button
             className="play-button"
             onClick={() => launchRoblox(game?.rootPlace?.id, undefined)}
@@ -163,6 +185,18 @@ const GameDetails = ({ game }: GameDetailsProps) => {
           </div>
         )}
       </div>
+      {showProfile && profileUserId && (
+        <UserProfileDetails
+          prop={game?.creator?.id}
+          onClose={() => setShowProfile(false)}
+        />
+      )}
+      {showGroup && groupId && (
+        <GroupDetails
+          group={game?.creator?.id}
+          onClose={() => setShowGroup(false)}
+        />
+      )}
     </div>
   );
 };

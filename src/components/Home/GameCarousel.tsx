@@ -1,23 +1,21 @@
 import { useState, useRef, useEffect } from "react";
-import UserProfileModal from "./FriendsModal";
+import GameModal from "../Game/GameModal";
 
-type User = {
+type Game = {
   id: number;
-  displayName: string;
-  username: string;
-  avatarUrl?: string;
-  isOnline: boolean;
+  name: string;
+  thumbnail?: string;
 };
 
-interface FriendsCarouselProps {
+interface GameCarouselProps {
   title: string;
-  friends: User[];
+  games: Game[];
 }
 
-const FriendsCarousel = ({ title, friends }: FriendsCarouselProps) => {
+const GameCarousel = ({ title, games }: GameCarouselProps) => {
   const [index, setIndex] = useState(0);
   const [maxIndex, setMaxIndex] = useState(0);
-  const [selectedFriend, setSelectedFriend] = useState<User | null>(null);
+  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
 
   const startX = useRef<number | null>(null);
@@ -54,40 +52,33 @@ const FriendsCarousel = ({ title, friends }: FriendsCarouselProps) => {
     startX.current = null;
   };
 
-  const cardWidth = 120;
-  const gap = 15;
+  const cardWidth = 160;
+  const gap = 26;
   const step = cardWidth + gap;
 
   useEffect(() => {
-    const calculateMaxScroll = () => {
+    const calculateMax = () => {
       if (viewportRef.current) {
         const viewportWidth = viewportRef.current.clientWidth;
         const totalContentWidth =
-          friends.length * cardWidth + (friends.length - 1) * gap;
+          games.length * cardWidth + (games.length - 1) * gap;
         const maxScrollPx = Math.max(0, totalContentWidth - viewportWidth);
-
         setMaxIndex(Math.ceil(maxScrollPx / step));
       }
     };
 
-    calculateMaxScroll();
-    window.addEventListener("resize", calculateMaxScroll);
-    return () => window.removeEventListener("resize", calculateMaxScroll);
-  }, [friends.length, step]);
+    calculateMax();
+    window.addEventListener("resize", calculateMax);
+    return () => window.removeEventListener("resize", calculateMax);
+  }, [games.length]);
 
   const next = () => setIndex((prev) => Math.min(prev + 1, maxIndex));
   const prev = () => setIndex((prev) => Math.max(prev - 1, 0));
 
   return (
-    <div className="friends-carousel-section">
-      <div className="carousel-header">
-        <h1>
-          {title} ({friends.length})
-        </h1>
-      </div>
-
-      <div className="carousel-container">
-
+    <div className="carousel-section">
+      <h1>{title}</h1>
+      <div className="carousel">
         <div
           className="viewport"
           ref={viewportRef}
@@ -98,39 +89,27 @@ const FriendsCarousel = ({ title, friends }: FriendsCarouselProps) => {
         >
           <div
             className="track"
-            style={{
-              transform: `translateX(-${index * step}px)`,
-              display: "flex",
-              gap: `${gap}px`,
-              transition: "transform 0.3s ease-out",
-            }}
+            style={{ transform: `translateX(-${index * step}px)` }}
           >
-            {friends.map((friend) => (
+            {games.map((game) => (
               <div
-                className="friend-card"
-                key={friend.id}
-                onClick={() => setSelectedFriend(friend)}
-                style={{ width: cardWidth, flexShrink: 0 }}
+                className="card"
+                key={game.id}
+                onClick={() => setSelectedGame(game)}
               >
-                <div className="avatar-wrapper">
-                  <img src={friend.avatarUrl} alt={friend.displayName} />
-                  {friend.isOnline && <div className="online-indicator" />}
-                </div>
-                <p className="display-name">{friend.displayName}</p>
+                <img src={game.thumbnail} alt={game.name} />
+                <p>{game.name}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {selectedFriend && (
-        <UserProfileModal
-          user={selectedFriend}
-          onClose={() => setSelectedFriend(null)}
-        />
+      {selectedGame && (
+        <GameModal game={selectedGame} onClose={() => setSelectedGame(null)} />
       )}
     </div>
   );
 };
 
-export default FriendsCarousel;
+export default GameCarousel;
