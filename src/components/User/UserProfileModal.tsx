@@ -1,6 +1,5 @@
 import UserProfileDetails from "./UserProfileDetails";
 import { invoke } from "@tauri-apps/api/core";
-import failedPfp from "../../assets/FailedPfp.webp";
 import { useEffect, useState } from "react";
 import { useBlur } from "../misc/BlurContext";
 
@@ -31,57 +30,9 @@ const UserProfileModal = ({ prop, onClose }: UserProfileModalProps) => {
   if (!prop) return null;
 
   const fetchFullUser = async (id: number): Promise<User | null> => {
-    try {
-      const [thumbRes, presenceRes, namesRes] = await Promise.all([
-        invoke<string>("roblox_request", {
-          method: "GET",
-          url: `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${id}&size=150x150&format=Png&isCircular=true`,
-        }),
-        invoke<string>("roblox_request", {
-          method: "POST",
-          url: `https://presence.roblox.com/v1/presence/users`,
-          body: JSON.stringify({ userIds: [id] }),
-        }),
-        invoke<string>("roblox_request", {
-          method: "GET",
-          url: `https://users.roblox.com/v1/users/${id}`,
-        }),
-      ]);
-
-      const { data: thumbData } = JSON.parse(thumbRes);
-      const { userPresences } = JSON.parse(presenceRes);
-      const namesData = JSON.parse(namesRes);
-
-      const nameInfo = namesData;
-      const thumb = thumbData?.[0];
-      const presence = userPresences?.[0];
-      const pType = presence?.userPresenceType ?? 0;
-
-      return {
-        id,
-        displayName: nameInfo?.displayName ?? "Unknown Player",
-        username: nameInfo?.name ?? "Unknown",
-        avatarUrl: thumb?.imageUrl ?? failedPfp,
-        presenceType: pType,
-        isOnline: pType > 0,
-        presence:
-          pType === 2
-            ? "In Game"
-            : pType === 3
-            ? "In Studio"
-            : pType === 1
-            ? "Online"
-            : "Offline",
-        gameId: presence?.id ?? null,
-        presenceData: presence,
-        created: nameInfo.created,
-        description: nameInfo.description,
-      };
-    } catch (err) {
-      console.error("Failed to fetch full user:", err);
-      return null;
-    }
-  };
+    const userData = await invoke<User>("get_user", {id})
+    return userData
+  }
 
   useEffect(() => {
     let cancelled = false;

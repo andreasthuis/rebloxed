@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+//import { useState } from "react";
 
 interface GameDetailsProps {
   group: any;
 }
 
 const GameDetails = ({ group }: GameDetailsProps) => {
-  const [activeTab, setActiveTab] = useState<"about" | "servers">("about");
+  //const [activeTab, setActiveTab] = useState<"about" | "servers">("about");
   
   return (
     <div className="group-details">

@@ -1,10 +1,11 @@
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use serde_json::Value;
 use tauri::AppHandle;
 
 use crate::core::data;
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct User {
     pub id: u64,
     pub display_name: String,

@@ -1,8 +1,10 @@
 pub mod core;
+pub mod api;
 
 use core::auth::{get_authenticated_user, login_with_cookie};
 use core::data::roblox_request;
 use core::play::launch_roblox;
+use api::user::get_user;
 
 /// Standard Tauri greet command
 #[tauri::command]
@@ -33,6 +35,7 @@ pub fn run() {
             login_with_cookie,
             get_authenticated_user,
             roblox_request,
+            get_user,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

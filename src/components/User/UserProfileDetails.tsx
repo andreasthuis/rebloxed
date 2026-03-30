@@ -114,7 +114,7 @@ export default function UserProfileDetails({ user }: Props) {
       );
 
       const finalFriends: User[] = allDetails.map((u: any) => {
-        const presence = presenceMap.get(u.id);
+        const presence = presenceMap.get(u.id) as { userPresenceType: number};
         const pType = presence?.userPresenceType ?? 0;
 
         return {

@@ -27,7 +27,7 @@ const FriendsCarousel = ({ title, friends }: FriendsCarouselProps) => {
   const startX = useRef<number | null>(null);
 
   const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault(); // stop page scrolling
+    e.preventDefault();
 
     const direction =
       Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
@@ -125,6 +125,9 @@ const FriendsCarousel = ({ title, friends }: FriendsCarouselProps) => {
                   )}
                 </div>
                 <p className="display-name">{friend.displayName}</p>
+                <p className="friend-ingame">
+                  {friend.isOnline && friend.presenceData?.lastLocation}
+                </p>
               </div>
             ))}
           </div>

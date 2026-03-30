@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Popup from "../misc/popup";
 import { invoke } from "@tauri-apps/api/core";
+import Logo from "../../assets/logo.png";
 
 interface WelcomeProps {
   onLogin: (id: number) => void;
@@ -12,7 +13,6 @@ function Welcome({ onLogin }: WelcomeProps) {
   const [view, setView] = useState<ViewState>("MENU");
   const [inputValue, setInputValue] = useState("");
 
-  // New state to control the visibility of the "Notice" pop-up
   const [showPopup, setShowPopup] = useState(false);
 
   const handleConfirmId = () => {
@@ -55,7 +55,7 @@ function Welcome({ onLogin }: WelcomeProps) {
           "
           confirmText="I Understand"
           onConfirm={() => setShowPopup(false)}
-          onCancel={() => setView("MENU")} // Go back if they disagree
+          onCancel={() => setView("MENU")}
         />
       )}
 
@@ -88,7 +88,7 @@ function Welcome({ onLogin }: WelcomeProps) {
 
       <div className="welcome-card">
         <div className="header-section">
-          <div className="logo-placeholder">R</div>
+          <img src={Logo} alt="rebloxed logo" className="logo"/>
           <h1>rebloxed launcher</h1>
           <p className="subtitle">The ultimate enhanced experience.</p>
         </div>
