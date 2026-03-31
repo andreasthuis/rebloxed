@@ -18,6 +18,7 @@
     "@tauri-apps/plugin-shell": "^2.3.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "tauri": "^0.15.0",
     "tauri-plugin-keychain": "^2.0.1",
     "tauri-plugin-keyring-api": "^0.1.1"
   },

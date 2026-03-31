@@ -631,8 +631,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c673075a2e0e5f4a1dde27ce9dee1ea4558c7ffe648f576438a20ca1d2acc4b0"
 dependencies = [
  "iana-time-zone",
+ "js-sys",
  "num-traits",
  "serde",
+ "wasm-bindgen",
  "windows-link 0.2.1",
 ]
 
@@ -3835,12 +3837,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "ro-rs"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "19120ee606bc08e2abade7920257c22f4b2c2ed2ca5c5edd9729337360830ccb"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "reqwest 0.12.28",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+]
+
+[[package]]
 name = "roblox-but-better"
 version = "0.1.0"
 dependencies = [
  "aes-gcm",
+ "anyhow",
  "rand 0.10.0",
  "reqwest 0.13.2",
+ "ro-rs",
  "serde",
  "serde_json",
  "tauri",

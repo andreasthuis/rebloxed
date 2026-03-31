@@ -41,11 +41,14 @@ function App() {
     return null;
   });
 
+  const [greetName, setGreetName] = useState<string | null>()
+
   useEffect(() => {
     if (localStorage.getItem("login_method") === "cookie") {
       invoke<any>("get_authenticated_user")
         .then((user) => {
           console.log("Logged in as:", user.name);
+          setGreetName(user.displayName);
           setUserId(user.id);
         })
         .catch((err) => {
@@ -215,7 +218,7 @@ function App() {
   return (
     <div className="container">
       <BlurProvider>
-        <Topbar />
+        <Topbar name={greetName} />
         {isLoading ? (
           <div className="loading-spinner">Loading your data...</div>
         ) : (

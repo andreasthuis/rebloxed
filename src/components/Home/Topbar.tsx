@@ -1,24 +1,36 @@
-import { fetch } from "@tauri-apps/plugin-http";
-import { invoke } from "@tauri-apps/api/core";
+interface TopbarProps {
+  name: string | null | undefined;
+}
 
-function Topbar() {
-  const handleClick = async () => {
-    try {
-      const response = await fetch("https://api.example.com/data");
-      const data = await response.json();
-      console.log(data);
-
-      await invoke("login");
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
+function Topbar({ name }: TopbarProps) {
   return (
-    <div className="topbar">
-      <h1>My App</h1>
-      <button onClick={handleClick}>Fetch Data</button>
-    </div>
+    <nav className="main-nav">
+      <div className="nav-container">
+        <div className="nav-left">
+          <div className="nav-links">
+            <a href="#" className="nav-link active">Home</a>
+            <a href="#" className="nav-link">Games</a>
+            <a href="#" className="nav-link">Catalog</a>
+            <a href="#" className="nav-link">Groups</a>
+          </div>
+        </div>
+
+        <div className="nav-right">
+          <div className="search-bar">
+            <input type="text" placeholder="Search games..." />
+          </div>
+          
+          <div className="nav-user-info">
+            <span className="welcome-text">
+              Welcome, <strong>{name || "Guest"}</strong>
+            </span>
+            <div className="nav-profile">
+              <div className="nav-avatar-placeholder" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
   );
 }
 

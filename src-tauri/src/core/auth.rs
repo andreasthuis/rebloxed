@@ -1,3 +1,5 @@
+
+
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use tauri_plugin_keyring::KeyringExt;
@@ -70,4 +72,11 @@ pub async fn get_authenticated_user(app: tauri::AppHandle) -> Result<AuthRespons
     );
 
     Ok(user_data)
+}
+
+pub fn get_cookie(app: &tauri::AppHandle) -> Result<String, String> {
+    app.keyring()
+        .get_password("rebloxed", "roblosecurity")
+        .map_err(|e| e.to_string())?
+        .ok_or_else(|| "No saved cookie found. Please log in.".to_string())
 }

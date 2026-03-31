@@ -1,16 +1,10 @@
 pub mod core;
-pub mod api;
+pub mod mapping;
 
 use core::auth::{get_authenticated_user, login_with_cookie};
 use core::data::roblox_request;
 use core::play::launch_roblox;
-use api::user::get_user;
-
-/// Standard Tauri greet command
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
+use mapping::user::get_user;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -30,7 +24,6 @@ pub fn run() {
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_keyring::init())
         .invoke_handler(tauri::generate_handler![
-            greet,
             launch_roblox,
             login_with_cookie,
             get_authenticated_user,
