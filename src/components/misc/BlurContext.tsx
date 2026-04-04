@@ -8,8 +8,8 @@ const BlurContext = createContext<{
 export const BlurProvider = ({ children }: { children: React.ReactNode }) => {
   const [count, setCount] = useState(0);
 
-  const acquire = () => setCount(c => c + 1);
-  const release = () => setCount(c => Math.max(0, c - 1));
+  const acquire = () => setCount((c) => c + 1);
+  const release = () => setCount((c) => Math.max(0, c - 1));
 
   return (
     <BlurContext.Provider value={{ acquire, release }}>

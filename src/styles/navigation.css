@@ -1,0 +1,123 @@
+/* Navigation Styles */
+.main-nav {
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 70px;
+  display: flex;
+  align-items: center;
+}
+
+.nav-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.nav-left,
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: var(--text-dim);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  color: var(--text-main);
+  background: var(--surface-hover);
+}
+
+.nav-link.active {
+  color: var(--text-main);
+  background: rgba(37, 99, 235, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.2);
+}
+
+.search-bar input {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  padding: 8px 16px;
+  border-radius: 20px;
+  color: var(--text-main);
+  font-size: 13px;
+  width: 200px;
+  transition: all 0.2s ease;
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: var(--blue);
+  width: 260px;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.nav-profile {
+  position: relative;
+  cursor: pointer;
+}
+
+.nav-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  transition: border-color 0.2s;
+}
+
+.nav-profile:hover .nav-avatar {
+  border-color: var(--blue);
+}
+
+.nav-user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.welcome-text {
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.welcome-text strong {
+  color: var(--text-main);
+  margin-left: 4px;
+}
+
+.nav-logo,
+.nav-avatar-placeholder {
+  background: var(--blue);
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+}
+
+.nav-avatar-placeholder {
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+}
+
+.logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  margin-right: 15px;
+}

@@ -14,33 +14,44 @@ interface GameCarouselProps {
 
 const GameCarousel = ({ title, games }: GameCarouselProps) => {
   const [index, setIndex] = useState(0);
-  const [maxIndex, setMaxIndex] = useState(0);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
-
   const startX = useRef<number | null>(null);
 
+  const cardWidth = 160;
+  const gap = 26;
+  const step = cardWidth + gap;
+  const buffer = 3;
+
+  const next = () => setIndex((prev) => Math.min(prev + 1, games.length - 1));
+  const prev = () => setIndex((prev) => Math.max(prev - 1, 0));
+
+  const [visibleCount, setVisibleCount] = useState(0);
+  useEffect(() => {
+    const updateVisibleCount = () => {
+      const width = viewportRef.current?.clientWidth || 1000;
+      setVisibleCount(Math.ceil(width / step));
+    };
+    updateVisibleCount();
+    window.addEventListener("resize", updateVisibleCount);
+    return () => window.removeEventListener("resize", updateVisibleCount);
+  }, [step]);
+
   const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault(); // stop page scrolling
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) e.preventDefault();
+    if (Math.abs(e.deltaY) < 10 && Math.abs(e.deltaX) < 10) return;
 
-    const direction =
-      Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-
-    if (direction > 0) {
-      next();
-    } else {
-      prev();
-    }
+    if (e.deltaY > 0 || e.deltaX > 0) next();
+    else prev();
   };
+
   const handleTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (startX.current === null) return;
-
     const diff = startX.current - e.touches[0].clientX;
-
     if (Math.abs(diff) > 50) {
       if (diff > 0) next();
       else prev();
@@ -48,56 +59,47 @@ const GameCarousel = ({ title, games }: GameCarouselProps) => {
     }
   };
 
-  const handleTouchEnd = () => {
-    startX.current = null;
-  };
-
-  const cardWidth = 160;
-  const gap = 26;
-  const step = cardWidth + gap;
-
-  useEffect(() => {
-    const calculateMax = () => {
-      if (viewportRef.current) {
-        const viewportWidth = viewportRef.current.clientWidth;
-        const totalContentWidth =
-          games.length * cardWidth + (games.length - 1) * gap;
-        const maxScrollPx = Math.max(0, totalContentWidth - viewportWidth);
-        setMaxIndex(Math.ceil(maxScrollPx / step));
-      }
-    };
-
-    calculateMax();
-    window.addEventListener("resize", calculateMax);
-    return () => window.removeEventListener("resize", calculateMax);
-  }, [games.length]);
-
-  const next = () => setIndex((prev) => Math.min(prev + 1, maxIndex));
-  const prev = () => setIndex((prev) => Math.max(prev - 1, 0));
+  const start = Math.max(0, index - buffer);
+  const end = Math.min(games.length, index + visibleCount + buffer);
+  const visibleGames = games.slice(start, end);
 
   return (
     <div className="carousel-section">
       <h1>{title}</h1>
+
       <div className="carousel">
         <div
           className="viewport"
           ref={viewportRef}
+          style={{ overflow: "hidden", width: "100%" }}
           onWheel={handleWheel}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
+          onTouchEnd={() => (startX.current = null)}
         >
           <div
             className="track"
-            style={{ transform: `translateX(-${index * step}px)` }}
+            style={{
+              display: "flex",
+              gap: `${gap}px`,
+              transform: `translateX(-${index * step}px)`,
+              paddingLeft: `${start * step}px`,
+              transition: "transform 0.4s ease-out",
+              width: "max-content",
+            }}
           >
-            {games.map((game) => (
+            {visibleGames.map((game) => (
               <div
                 className="card"
                 key={game.id}
                 onClick={() => setSelectedGame(game)}
+                style={{ width: cardWidth, flexShrink: 0 }}
               >
-                <img src={game.thumbnail} alt={game.name} />
+                <img
+                  src={game.thumbnail}
+                  alt={game.name}
+                  style={{ width: "100%" }}
+                />
                 <p>{game.name}</p>
               </div>
             ))}

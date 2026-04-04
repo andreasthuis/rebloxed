@@ -38,7 +38,5 @@ pub async fn roblox_request(
 
     let request_data = res.text().await.map_err(|e| e.to_string())?;
 
-    log::info!("Request to {} {} succeeded", method, url);
-
     Ok(request_data)
 }

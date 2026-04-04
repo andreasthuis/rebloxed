@@ -8,10 +8,18 @@ function Topbar({ name }: TopbarProps) {
       <div className="nav-container">
         <div className="nav-left">
           <div className="nav-links">
-            <a href="#" className="nav-link active">Home</a>
-            <a href="#" className="nav-link">Games</a>
-            <a href="#" className="nav-link">Catalog</a>
-            <a href="#" className="nav-link">Groups</a>
+            <a href="#" className="nav-link active">
+              Home
+            </a>
+            <a href="#" className="nav-link">
+              Games
+            </a>
+            <a href="#" className="nav-link">
+              Catalog
+            </a>
+            <a href="#" className="nav-link">
+              Groups
+            </a>
           </div>
         </div>
 
@@ -19,7 +27,7 @@ function Topbar({ name }: TopbarProps) {
           <div className="search-bar">
             <input type="text" placeholder="Search games..." />
           </div>
-          
+
           <div className="nav-user-info">
             <span className="welcome-text">
               Welcome, <strong>{name || "Guest"}</strong>

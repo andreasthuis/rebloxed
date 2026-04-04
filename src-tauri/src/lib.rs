@@ -1,10 +1,11 @@
 pub mod core;
 pub mod mapping;
 
-use core::auth::{get_authenticated_user, login_with_cookie};
+use core::auth::{get_authenticated_user, login_with_cookie, wait_for_login};
 use core::data::roblox_request;
 use core::play::launch_roblox;
 use mapping::user::get_user;
+use mapping::game::get_games_by_topic;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -29,6 +30,8 @@ pub fn run() {
             get_authenticated_user,
             roblox_request,
             get_user,
+            wait_for_login,
+            get_games_by_topic
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

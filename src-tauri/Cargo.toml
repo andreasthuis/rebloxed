@@ -33,3 +33,4 @@ tauri-plugin-keyring = "0.1.0"
 tauri-plugin-log = "2"
 anyhow = "1.0"
 ro-rs = "0.1.1"
+uuid = { version = "1.23.0", features = ["v4"] }

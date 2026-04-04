@@ -2,6 +2,7 @@ import { useState } from "react";
 import Popup from "../misc/popup";
 import { invoke } from "@tauri-apps/api/core";
 import Logo from "../../assets/logo.png";
+import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 
 interface WelcomeProps {
   onLogin: (id: number) => void;
@@ -27,17 +28,33 @@ function Welcome({ onLogin }: WelcomeProps) {
 
   const handleConfirmCookie = async () => {
     try {
-      const userId = await invoke<number>("login_with_cookie", {
-        cookie: inputValue,
+      console.log("Creating login window...");
+
+      const loginWindow = new WebviewWindow("login", {
+        url: "https://www.roblox.com/login",
+        title: "Login to Roblox",
+        width: 500,
+        height: 700,
+        userAgent:
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       });
-      localStorage.setItem("login_method", "cookie");
-      onLogin(userId);
+
+      loginWindow.once("tauri://created", async () => {
+        console.log("Window successfully created");
+        const userId = await invoke<number>("wait_for_login");
+
+        localStorage.setItem("login_method", "cookie");
+        onLogin(userId);
+      });
+
+      loginWindow.once("tauri://error", (e) => {
+        console.error("Failed to create window:", e);
+      });
     } catch (err) {
-      console.error(err);
-      alert("Invalid or expired cookie");
+      console.error("Login failed:", err);
+      alert("Login timed out or failed.");
     }
   };
-
   const selectMethod = (nextView: ViewState) => {
     setInputValue("");
     setView(nextView);
@@ -65,6 +82,8 @@ function Welcome({ onLogin }: WelcomeProps) {
           isOpen={showPopup}
           title="Security Disclosure"
           message='
+          Login with Roblox gives us acces to your .ROBLOSECURITY cookie!
+
           What is this?
           A .ROBLOSECURITY cookie is a "Session Token." It is a unique digital key created when you log in. It tells Roblox you are already authenticated so you dont have to re-enter your password or 2FA code every time you use the launcher.
           
@@ -73,13 +92,13 @@ function Welcome({ onLogin }: WelcomeProps) {
            
           How we protect you:
            
-          Local Only: Your cookie is never sent to our servers. It stays on your machine.
+          Local Only: Your cookie is never sent to any external servers. It stays on your machine.
            
           Direct Sync: The launcher uses the token only to communicate directly with official Roblox APIs.
            
           Encryption: The token is stored in an encrypted local database to prevent other basic software on your PC from reading it.
            
-          Never share this string of text with anyone, including staff members.'
+          Never share this string of text with anyone, including roblox staff members.'
           confirmText="Accept & Continue"
           onConfirm={() => setShowPopup(false)}
           onCancel={() => setView("MENU")}
@@ -88,7 +107,7 @@ function Welcome({ onLogin }: WelcomeProps) {
 
       <div className="welcome-card">
         <div className="header-section">
-          <img src={Logo} alt="rebloxed logo" className="logo"/>
+          <img src={Logo} alt="rebloxed logo" className="logo" />
           <h1>rebloxed launcher</h1>
           <p className="subtitle">The ultimate enhanced experience.</p>
         </div>
@@ -112,7 +131,7 @@ function Welcome({ onLogin }: WelcomeProps) {
                   className="btn-secondary"
                   onClick={() => selectMethod("COOKIE_INPUT")}
                 >
-                  Register with .ROBLOSECURITY
+                  Register with login
                 </button>
               </div>
             </>
@@ -143,15 +162,7 @@ function Welcome({ onLogin }: WelcomeProps) {
 
           {view === "COOKIE_INPUT" && (
             <>
-              <h2>Paste Cookie</h2>
-              <p>Warning: Never share this with anyone else!</p>
-              <textarea
-                className="launcher-input textarea"
-                placeholder="_|WARNING:-DO-NOT-SHARE-..."
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                autoFocus
-              />
+              <h2>Login with roblox</h2>
               <div className="button-group" style={{ marginTop: "20px" }}>
                 <button className="btn-primary" onClick={handleConfirmCookie}>
                   Login with Cookie

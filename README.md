@@ -28,9 +28,9 @@ Powered by Rust through Tauri for minimal CPU and memory usage.
 
 ## Tech Stack
 
-* **Frontend:** React + Vite
-* **Language:** TypeScript
-* **Backend:** Rust (Tauri)
+- **Frontend:** React + Vite
+- **Language:** TypeScript
+- **Backend:** Rust (Tauri)
 
 ---
 
@@ -40,9 +40,9 @@ Powered by Rust through Tauri for minimal CPU and memory usage.
 
 Make sure the following tools are installed:
 
-* **Rust** (via `rustup`)
-* **Node.js** (latest LTS recommended)
-* **System dependencies for Tauri** (refer to official Tauri documentation for your OS)
+- **Rust** (via `rustup`)
+- **Node.js** (latest LTS recommended)
+- **System dependencies for Tauri** (refer to official Tauri documentation for your OS)
 
 ---
 
@@ -91,10 +91,10 @@ src-tauri/capabilities/ # Tauri permission configurations
 
 For the best development experience, use:
 
-* Visual Studio Code
-* Tauri Extension
-* rust-analyzer
-* ESLint
+- Visual Studio Code
+- Tauri Extension
+- rust-analyzer
+- ESLint
 
 Contributions are welcome. Please ensure your changes are well-tested and follow the existing project structure.
 

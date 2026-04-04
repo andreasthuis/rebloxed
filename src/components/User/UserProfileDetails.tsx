@@ -19,14 +19,14 @@ interface Props {
   user: User;
 }
 
-const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 const presenceLabel = (type: number = 0) =>
   ["Offline", "Online", "In Game", "In Studio"][type] ?? "Offline";
 
 const chunk = <T,>(arr: T[], size: number): T[][] =>
   Array.from({ length: Math.ceil(arr.length / size) }, (_, i) =>
-    arr.slice(i * size, i * size + size)
+    arr.slice(i * size, i * size + size),
   );
 
 export default function UserProfileDetails({ user }: Props) {
@@ -50,9 +50,10 @@ export default function UserProfileDetails({ user }: Props) {
 
       if (abortRef.current) return;
 
-      const ids: number[] = JSON.parse(friendsRes).data
-        ?.map((f: any) => f.id)
-        ?.filter((id: number) => id > 0) ?? [];
+      const ids: number[] =
+        JSON.parse(friendsRes)
+          .data?.map((f: any) => f.id)
+          ?.filter((id: number) => id > 0) ?? [];
 
       if (!ids.length) {
         setFriends([]);
@@ -105,16 +106,14 @@ export default function UserProfileDetails({ user }: Props) {
 
       const presences = JSON.parse(presenceRes).userPresences ?? [];
 
-      const presenceMap = new Map(
-        presences.map((p: any) => [p.userId, p])
-      );
+      const presenceMap = new Map(presences.map((p: any) => [p.userId, p]));
 
       const thumbMap = new Map(
-        allThumbs.map((t: any) => [t.targetId, t.imageUrl])
+        allThumbs.map((t: any) => [t.targetId, t.imageUrl]),
       );
 
       const finalFriends: User[] = allDetails.map((u: any) => {
-        const presence = presenceMap.get(u.id) as { userPresenceType: number};
+        const presence = presenceMap.get(u.id) as { userPresenceType: number };
         const pType = presence?.userPresenceType ?? 0;
 
         return {
@@ -133,7 +132,6 @@ export default function UserProfileDetails({ user }: Props) {
 
       setFriends(finalFriends);
       fetchedRef.current = true;
-
     } catch (err) {
       console.error("Friends fetch failed:", err);
     } finally {
@@ -177,9 +175,7 @@ export default function UserProfileDetails({ user }: Props) {
           <p className="username">@{user.username}</p>
 
           <p className="presence-text">
-            {user.presenceData?.lastLocation ??
-              user.presence ??
-              "Offline"}
+            {user.presenceData?.lastLocation ?? user.presence ?? "Offline"}
           </p>
 
           <div className="action-buttons">
@@ -191,7 +187,7 @@ export default function UserProfileDetails({ user }: Props) {
                 onClick={() =>
                   launchRoblox(
                     user.presenceData?.placeId,
-                    user.presenceData?.gameId
+                    user.presenceData?.gameId,
                   )
                 }
               >
@@ -233,9 +229,7 @@ export default function UserProfileDetails({ user }: Props) {
             </div>
 
             <h3>Bio</h3>
-            <p className="user-bio">
-              {user.description || "No bio provided."}
-            </p>
+            <p className="user-bio">{user.description || "No bio provided."}</p>
           </div>
         ) : (
           <div className="friends-list-tab">
@@ -243,7 +237,7 @@ export default function UserProfileDetails({ user }: Props) {
               <div className="loader">Fetching friends…</div>
             ) : friends.length ? (
               <div className="friends-grid">
-                {friends.map(friend => (
+                {friends.map((friend) => (
                   <div key={friend.id} className="friend-card-2">
                     <div className="friend-avatar-wrapper-2">
                       <img
@@ -251,14 +245,14 @@ export default function UserProfileDetails({ user }: Props) {
                         alt={friend.username}
                       />
                       {friend.isOnline && (
-                        <span className={`mini-status p-${friend.presenceType}`} />
+                        <span
+                          className={`mini-status p-${friend.presenceType}`}
+                        />
                       )}
                     </div>
 
                     <div className="friend-info">
-                      <span className="f-display">
-                        {friend.displayName}
-                      </span>
+                      <span className="f-display">{friend.displayName}</span>
                     </div>
                   </div>
                 ))}

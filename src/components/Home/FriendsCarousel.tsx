@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import UserProfileModal from "../User/UserProfileModal";
+
 interface User {
   id: number;
   displayName: string;
@@ -20,31 +21,49 @@ interface FriendsCarouselProps {
 
 const FriendsCarousel = ({ title, friends }: FriendsCarouselProps) => {
   const [index, setIndex] = useState(0);
-  const [maxIndex, setMaxIndex] = useState(0);
   const [selectedFriend, setSelectedFriend] = useState<User | null>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
-
   const startX = useRef<number | null>(null);
 
+  const cardWidth = 120;
+  const gap = 15;
+  const step = cardWidth + gap;
+  const buffer = 4;
+
+  const lockBodyScroll = () => (document.body.style.overflow = "hidden");
+  const unlockBodyScroll = () => (document.body.style.overflow = "");
+
+  const [visibleCount, setVisibleCount] = useState(0);
+  useEffect(() => {
+    const updateVisibleCount = () => {
+      const width = viewportRef.current?.clientWidth || 1000;
+      setVisibleCount(Math.floor(width / step));
+    };
+    updateVisibleCount();
+    window.addEventListener("resize", updateVisibleCount);
+    return () => window.removeEventListener("resize", updateVisibleCount);
+  }, [step]);
+
+  const maxIndex = Math.max(0, friends.length - visibleCount);
+
+  const next = () => setIndex((prev) => Math.min(prev + 1, maxIndex));
+  const prev = () => setIndex((prev) => Math.max(prev - 1, 0));
+
   const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
+    if (Math.abs(e.deltaX) < 5 && Math.abs(e.deltaY) < 5) return;
 
     const direction =
       Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-
-    if (direction > 0) {
-      next();
-    } else {
-      prev();
-    }
+    if (direction > 0) next();
+    else prev();
   };
+
   const handleTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (startX.current === null) return;
-
     const diff = startX.current - e.touches[0].clientX;
 
     if (Math.abs(diff) > 50) {
@@ -54,33 +73,9 @@ const FriendsCarousel = ({ title, friends }: FriendsCarouselProps) => {
     }
   };
 
-  const handleTouchEnd = () => {
-    startX.current = null;
-  };
-
-  const cardWidth = 120;
-  const gap = 15;
-  const step = cardWidth + gap;
-
-  useEffect(() => {
-    const calculateMaxScroll = () => {
-      if (viewportRef.current) {
-        const viewportWidth = viewportRef.current.clientWidth;
-        const totalContentWidth =
-          friends.length * cardWidth + (friends.length - 1) * gap;
-        const maxScrollPx = Math.max(0, totalContentWidth - viewportWidth);
-
-        setMaxIndex(Math.ceil(maxScrollPx / step));
-      }
-    };
-
-    calculateMaxScroll();
-    window.addEventListener("resize", calculateMaxScroll);
-    return () => window.removeEventListener("resize", calculateMaxScroll);
-  }, [friends.length, step]);
-
-  const next = () => setIndex((prev) => Math.min(prev + 1, maxIndex));
-  const prev = () => setIndex((prev) => Math.max(prev - 1, 0));
+  const start = Math.max(0, index - buffer);
+  const end = Math.min(friends.length, index + visibleCount + buffer);
+  const visibleFriends = friends.slice(start, end);
 
   return (
     <div className="friends-carousel-section">
@@ -94,21 +89,26 @@ const FriendsCarousel = ({ title, friends }: FriendsCarouselProps) => {
         <div
           className="viewport"
           ref={viewportRef}
+          style={{ overflow: "hidden", width: "100%" }}
           onWheel={handleWheel}
+          onMouseEnter={lockBodyScroll}
+          onMouseLeave={unlockBodyScroll}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
+          onTouchEnd={() => (startX.current = null)}
         >
           <div
             className="track"
             style={{
-              transform: `translateX(-${index * step}px)`,
               display: "flex",
               gap: `${gap}px`,
+              transform: `translateX(-${index * step}px)`,
+              paddingLeft: `${start * step}px`,
               transition: "transform 0.3s ease-out",
+              width: "max-content",
             }}
           >
-            {friends.map((friend) => (
+            {visibleFriends.map((friend) => (
               <div
                 className="friend-card"
                 key={friend.id}
@@ -117,13 +117,14 @@ const FriendsCarousel = ({ title, friends }: FriendsCarouselProps) => {
               >
                 <div className="avatar-wrapper">
                   <img src={friend.avatarUrl} alt={friend.displayName} />
-                  {friend.presence == "Online" && (
+                  {friend.presence === "Online" && (
                     <div className="online-indicator" />
                   )}
-                  {friend.presence == "In Game" && (
-                    <div className="game-indicator"></div>
+                  {friend.presence === "In Game" && (
+                    <div className="game-indicator" />
                   )}
                 </div>
+
                 <p className="display-name">{friend.displayName}</p>
                 <p className="friend-ingame">
                   {friend.isOnline && friend.presenceData?.lastLocation}

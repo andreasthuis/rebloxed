@@ -1,9 +1,8 @@
-
-
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use tauri_plugin_keyring::KeyringExt;
 use tauri_plugin_log::log;
+use tauri::Manager;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[allow(dead_code)]
@@ -79,4 +78,26 @@ pub fn get_cookie(app: &tauri::AppHandle) -> Result<String, String> {
         .get_password("rebloxed", "roblosecurity")
         .map_err(|e| e.to_string())?
         .ok_or_else(|| "No saved cookie found. Please log in.".to_string())
+}
+
+#[tauri::command]
+pub async fn wait_for_login(app: tauri::AppHandle) -> Result<u64, String> {
+    let login_window = app.get_webview_window("login")
+        .ok_or_else(|| "Login window not found".to_string())?;
+
+    loop {
+        let cookies = login_window.cookies().map_err(|e| e.to_string())?;
+
+        if let Some(cookie) = cookies.iter().find(|c| c.name() == ".ROBLOSECURITY") {
+            let token = cookie.value().to_string();
+
+            let user_id = login_with_cookie(app.clone(), token).await?;
+
+            let _ = login_window.close();
+
+            return Ok(user_id);
+        }
+
+        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+    }
 }

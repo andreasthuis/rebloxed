@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import GameCarousel from "./components/Home/GameCarousel";
 import FriendsCarousel from "./components/Home/FriendsCarousel";
 import "./App.css";
@@ -29,7 +29,7 @@ export interface Game {
   name: string;
   thumbnail?: string;
   playing: number;
-  [key: string]: any; // Allows for other properties from the Roblox API
+  [key: string]: any;
 }
 
 function App() {
@@ -41,73 +41,15 @@ function App() {
     return null;
   });
 
-  const [greetName, setGreetName] = useState<string | null>()
-
-  useEffect(() => {
-    if (localStorage.getItem("login_method") === "cookie") {
-      invoke<any>("get_authenticated_user")
-        .then((user) => {
-          console.log("Logged in as:", user.name);
-          setGreetName(user.displayName);
-          setUserId(user.id);
-        })
-        .catch((err) => {
-          console.error("Failed to get authenticated user:", err);
-          setUserId(null);
-        });
-    }
-  }, []);
-
+  const [greetName, setGreetName] = useState<string | null>();
   const [favorites, setFavorites] = useState<Game[]>([]);
+  const [recommended, setRecommended] = useState<Game[]>([]);
+  const [continueGames, setContinue] = useState<Game[]>([]);
   const [friends, setFriends] = useState<Friend[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const handleLogin = (id: number) => {
-    localStorage.setItem("roblox_user_id", id.toString());
-    setUserId(id);
-  };
-
-  const fetchFavorites = async () => {
-    try {
-      const resString = await invoke<string>("roblox_request", {
-        method: "GET",
-        url: `https://games.roblox.com/v2/users/${userId}/favorite/games?accessFilter=2&limit=10&sortOrder=Desc`,
-      });
-
-      const { data: gamesData } = JSON.parse(resString);
-      if (!gamesData || gamesData.length === 0) return;
-
-      const universeIds = gamesData.map((g: any) => g.id).join(",");
-
-      const [detailsRes, thumbRes] = await Promise.all([
-        invoke<string>("roblox_request", {
-          method: "GET",
-          url: `https://games.roblox.com/v1/games?universeIds=${universeIds}`,
-        }),
-        invoke<string>("roblox_request", {
-          method: "GET",
-          url: `https://thumbnails.roblox.com/v1/games/icons?universeIds=${universeIds}&size=256x256&format=Png&isCircular=false`,
-        }),
-      ]);
-
-      const { data: detailsData } = JSON.parse(detailsRes);
-      const { data: thumbData } = JSON.parse(thumbRes);
-
-      const finalGames: Game[] = gamesData.map((g: any) => ({
-        ...g,
-        thumbnail: thumbData.find((t: any) => t.targetId === g.id)?.imageUrl,
-        playing: detailsData.find((d: any) => d.id === g.id)?.playing || 0,
-        ...detailsData.find((d: any) => d.id === g.id),
-      }));
-
-      setFavorites(finalGames);
-      console.log("Final Favorites List:", finalGames);
-    } catch (err) {
-      console.error("Games API Error:", err);
-    }
-  };
-
-  const fetchFriends = async () => {
+  const fetchFriends = useCallback(async () => {
+    if (!userId) return;
     try {
       const resString = await invoke<string>("roblox_request", {
         method: "GET",
@@ -137,10 +79,10 @@ function App() {
       ]);
 
       const namesRes = await Promise.all(
-        validFriendIds.map((userId: number) =>
+        validFriendIds.map((id: number) =>
           invoke<string>("roblox_request", {
             method: "GET",
-            url: `https://users.roblox.com/v1/users/${userId}`,
+            url: `https://users.roblox.com/v1/users/${id}`,
           }),
         ),
       );
@@ -148,13 +90,6 @@ function App() {
       const { data: thumbData } = JSON.parse(thumbRes);
       const { userPresences } = JSON.parse(presenceRes);
       const namesData = namesRes.map((res: string) => JSON.parse(res));
-
-      console.log("Fetched Friends Data:", {
-        friendsData,
-        thumbData,
-        userPresences,
-        namesData,
-      });
 
       const finalFriends: Friend[] = validFriendIds
         .map((id: number): Friend => {
@@ -184,8 +119,8 @@ function App() {
                     : "Offline",
             gameId: presence?.id || null,
             presenceData: presence,
-            description: nameInfo.description,
-            created: nameInfo.created,
+            description: nameInfo?.description || "",
+            created: nameInfo?.created || "",
             friends: true,
           };
         })
@@ -196,20 +131,74 @@ function App() {
           return getPriority(b.presenceType) - getPriority(a.presenceType);
         });
 
-      console.log("Final Friends List:", finalFriends);
       setFriends(finalFriends);
     } catch (err) {
       console.error("Failed to fetch friends metadata:", err);
     }
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    if (localStorage.getItem("login_method") === "cookie") {
+      invoke<any>("get_authenticated_user")
+        .then((user) => {
+          setGreetName(user.displayName);
+          setUserId(user.id);
+        })
+        .catch((err) => {
+          console.error("Failed to get authenticated user:", err);
+          setUserId(null);
+        });
+    }
+  }, []);
+
   useEffect(() => {
     if (userId) {
       setIsLoading(true);
-      Promise.all([fetchFavorites(), fetchFriends()]).finally(() =>
-        setIsLoading(false),
-      );
+      Promise.all([fetchFriends()]).finally(() => setIsLoading(false));
+    }
+  }, [userId, fetchFriends]);
+
+  useEffect(() => {
+    if (userId) {
+      setRecommended([]);
+      invoke<Game[]>("get_games_by_topic", {
+        topic: "Recommended For You",
+        provideThumbnail: true,
+      })
+        .then((res) => {
+          console.log("Recommended Games:", res);
+          setRecommended(res);
+        })
+        .catch((err) =>
+          console.error("Failed to fetch recommended games:", err),
+        );
+      invoke<Game[]>("get_games_by_topic", {
+        topic: "Continue",
+        provideThumbnail: true,
+        thumbnailType: "icon",
+      })
+        .then((res) => {
+          console.log("Continue Games:", res);
+          setContinue(res);
+        })
+        .catch((err) => console.error("Failed to fetch continue games:", err));
+      invoke<Game[]>("get_games_by_topic", {
+        topic: "Favorites",
+        provideThumbnail: true,
+        thumbnailType: "icon",
+      })
+        .then((res) => {
+          console.log("Favorited Games:", res);
+          setFavorites(res);
+        })
+        .catch((err) => console.error("Failed to fetch favorited games:", err));
     }
   }, [userId]);
+
+  const handleLogin = (id: number) => {
+    localStorage.setItem("roblox_user_id", id.toString());
+    setUserId(id);
+  };
 
   if (!userId) {
     return <Welcome onLogin={handleLogin} />;
@@ -226,6 +215,8 @@ function App() {
             <FriendsCarousel title="Friends" friends={friends} />
             <hr className="section-divider" />
             <GameCarousel title="Favorite Games" games={favorites} />
+            <GameCarousel title="Continue" games={continueGames} />
+            <GameCarousel title="Recommended For You" games={recommended} />
           </>
         )}
       </BlurProvider>

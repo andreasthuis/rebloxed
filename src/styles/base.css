@@ -1,0 +1,39 @@
+/* Base Styles */
+body {
+  margin: 0;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  background: var(--bg-color);
+  color: var(--text-main);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+.container {
+  max-width: 95%;
+  padding: 40px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 2rem;
+  letter-spacing: -0.03em;
+  margin-block-end: auto;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Divider */
+
+.section-divider {
+  height: 0px;
+  border-bottom: 1px solid var(--border-color);
+  border-top-width: 0px;
+}

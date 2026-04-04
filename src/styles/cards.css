@@ -1,0 +1,119 @@
+/* Game & User Cards */
+.card {
+  width: 160px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  border-color: var(--blue);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  background: var(--surface-hover);
+}
+
+.card img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.card p {
+  margin: 0;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Friend Cards */
+.friend-card-2 {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.friend-card-2:hover {
+  background: var(--surface-hover);
+}
+
+.friend-avatar-wrapper-2 img {
+  width: 80px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-color);
+}
+
+.display-name {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-main);
+  text-align: center;
+}
+
+.friend-ingame {
+  margin-top: -8px;
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.avatar-wrapper img {
+  width: 100%;
+  aspect-ratio: 1;
+  border: var(--border-color) 1px solid;
+  border-radius: 100%;
+}
+
+/* Avatar Indicators */
+.parent {
+  position: relative;
+}
+
+.online-indicator,
+.game-indicator {
+  position: absolute;
+  width: 22px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  bottom: 5%;
+  right: 5%;
+  place-items: center;
+  border: 3px solid var(--card-bg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  display: grid;
+}
+
+.online-indicator {
+  background: var(--blue);
+}
+
+.game-indicator {
+  background: #02b757;
+  box-shadow:
+    0 0 0 3px var(--card-bg),
+    0 0 8px color-mix(in srgb, var(--blue) 60%, transparent);
+}
+
+.status-icon {
+  width: 12px;
+  height: 12px;
+  fill: white;
+}

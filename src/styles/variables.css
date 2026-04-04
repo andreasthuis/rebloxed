@@ -1,0 +1,19 @@
+:root {
+  /* Brand Colors */
+  --blue: #2563eb;
+  --dark-blue: #1149c4;
+
+  /* Backgrounds */
+  --bg-color: #181922;
+  --card-bg: #1a1a20;
+  --modal-bg: #16161b;
+  --surface-hover: #23232a;
+
+  /* Borders & Accents */
+  --border-color: #2d2d35;
+  --secondary-accent: #3a3a43;
+
+  /* Typography */
+  --text-main: #ffffff;
+  --text-dim: #a1a1aa;
+}

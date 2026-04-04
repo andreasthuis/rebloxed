@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { fetch } from "@tauri-apps/plugin-http";
 import { invoke } from "@tauri-apps/api/core";
 import UserProfileDetails from "../User/UserProfileModal";
-import GroupDetails from "../Group/GroupModal"
+import GroupDetails from "../Group/GroupModal";
 
 interface GameDetailsProps {
   game: any;
@@ -25,7 +25,7 @@ const GameDetails = ({ game }: GameDetailsProps) => {
       setShowProfile(true);
     } else if (game?.creator?.type === "Group") {
       setGroupId(game.creator.id.toString());
-      setShowGroup(true)
+      setShowGroup(true);
     }
   };
 

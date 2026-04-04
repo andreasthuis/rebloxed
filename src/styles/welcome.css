@@ -1,0 +1,103 @@
+/* Welcome/Launcher Styles */
+.launcher-wrapper {
+  background-color: var(--bg-color);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Inter", sans-serif;
+  color: var(--text-main);
+}
+
+.welcome-card {
+  background-color: var(--card-bg);
+  padding: 40px;
+  border-radius: 16px;
+  width: 400px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border-color);
+}
+
+.logo-placeholder {
+  width: 60px;
+  height: 60px;
+  background: var(--blue);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 2rem;
+  margin: 0 auto 15px;
+}
+
+.header-section h1 {
+  font-size: 2.5rem;
+  margin: 0;
+}
+
+.subtitle {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+.content-section {
+  margin-top: 30px;
+}
+
+.content-section h2 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.content-section p {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  margin-bottom: 25px;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  margin: 5px 0;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.divider span {
+  padding: 0 10px;
+}
+
+.footer-note {
+  margin-top: 30px;
+  font-size: 0.75rem;
+  color: #52525b;
+}
+
+.launcher-input {
+  width: 100%;
+  max-width: 80%;
+  max-height: 20%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-main);
+  font-size: 14px;
+}

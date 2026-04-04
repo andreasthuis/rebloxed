@@ -14,7 +14,7 @@ interface User {
   gameId: string | null;
   presenceData: any;
   created: string;
-  description?: string
+  description?: string;
 }
 
 interface UserProfileModalProps {
@@ -30,13 +30,13 @@ const UserProfileModal = ({ prop, onClose }: UserProfileModalProps) => {
   if (!prop) return null;
 
   const fetchFullUser = async (id: number): Promise<User | null> => {
-    const userData = await invoke<User>("get_user", {id})
-    return userData
-  }
+    const userData = await invoke<User>("get_user", { id });
+    return userData;
+  };
 
   useEffect(() => {
     let cancelled = false;
-    
+
     // If full user object provided → use it directly
     if (typeof prop === "object") {
       setUser(prop);
@@ -54,7 +54,6 @@ const UserProfileModal = ({ prop, onClose }: UserProfileModalProps) => {
       .finally(() => {
         if (!cancelled) setIsLoading(false);
       });
-
 
     return () => {
       cancelled = true;

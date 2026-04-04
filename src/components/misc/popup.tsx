@@ -7,7 +7,14 @@ interface ModalProps {
   onCancel: () => void;
 }
 
-function LauncherModal({ isOpen, title, message, confirmText = "Confirm", onConfirm, onCancel }: ModalProps) {
+function LauncherModal({
+  isOpen,
+  title,
+  message,
+  confirmText = "Confirm",
+  onConfirm,
+  onCancel,
+}: ModalProps) {
   if (!isOpen) return null;
 
   return (
@@ -18,7 +25,7 @@ function LauncherModal({ isOpen, title, message, confirmText = "Confirm", onConf
           <h2 className="popup-title">{title}</h2>
           <div className="warning-icon">!</div>
         </div>
-        
+
         <div className="popup-message">
           <p>{message}</p>
         </div>
