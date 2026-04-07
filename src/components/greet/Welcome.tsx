@@ -149,7 +149,7 @@ function Welcome({ onLogin }: WelcomeProps) {
                 onChange={(e) => setInputValue(e.target.value)}
                 autoFocus
               />
-              <div className="button-group" style={{ marginTop: "20px" }}>
+              <div className="button-group">
                 <button className="btn-primary" onClick={handleConfirmId}>
                   Confirm & Login
                 </button>
@@ -163,7 +163,7 @@ function Welcome({ onLogin }: WelcomeProps) {
           {view === "COOKIE_INPUT" && (
             <>
               <h2>Login with roblox</h2>
-              <div className="button-group" style={{ marginTop: "20px" }}>
+              <div className="button-group">
                 <button className="btn-primary" onClick={handleConfirmCookie}>
                   Login with Cookie
                 </button>

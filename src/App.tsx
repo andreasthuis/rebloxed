@@ -1,11 +1,12 @@
 import { useEffect, useState, useCallback } from "react";
-import GameCarousel from "./components/Home/GameCarousel";
-import FriendsCarousel from "./components/Home/FriendsCarousel";
+import GameCarousel from "./components/Game/GameCarousel";
+import FriendsCarousel from "./components/User/FriendsCarousel";
 import "./App.css";
 import Topbar from "./components/Home/Topbar";
 import Welcome from "./components/greet/Welcome";
 import { invoke } from "@tauri-apps/api/core";
 import { BlurProvider } from "./components/misc/BlurContext";
+import GameGallery from "./components/Game/GameGallery";
 
 import failedPfp from "./assets/FailedPfp.webp";
 
@@ -28,20 +29,15 @@ export interface Game {
   id: number;
   name: string;
   thumbnail?: string;
-  playing: number;
+  playerCount: number;
   [key: string]: any;
 }
 
 function App() {
-  const [userId, setUserId] = useState<number | null>(() => {
-    if (localStorage.getItem("login_method") === "user_id") {
-      const saved = localStorage.getItem("roblox_user_id");
-      return saved ? parseInt(saved) : null;
-    }
-    return null;
-  });
+  const [userId, setUserId] = useState<number | null>(null);
+  const [isBooting, setIsBooting] = useState(true);
 
-  const [greetName, setGreetName] = useState<string | null>();
+  const [greetName, setGreetName] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<Game[]>([]);
   const [recommended, setRecommended] = useState<Game[]>([]);
   const [continueGames, setContinue] = useState<Game[]>([]);
@@ -50,11 +46,13 @@ function App() {
 
   const fetchFriends = useCallback(async () => {
     if (!userId) return;
+
     try {
       const resString = await invoke<string>("roblox_request", {
         method: "GET",
         url: `https://friends.roblox.com/v1/users/${userId}/friends`,
       });
+
       const { data: friendsData } = JSON.parse(resString);
 
       const validFriendIds = friendsData
@@ -138,67 +136,82 @@ function App() {
   }, [userId]);
 
   useEffect(() => {
-    if (localStorage.getItem("login_method") === "cookie") {
-      invoke<any>("get_authenticated_user")
-        .then((user) => {
+    const initAuth = async () => {
+      try {
+        const method = localStorage.getItem("login_method");
+
+        if (method === "cookie") {
+          const user = await invoke<any>("get_authenticated_user");
           setGreetName(user.displayName);
           setUserId(user.id);
-        })
-        .catch((err) => {
-          console.error("Failed to get authenticated user:", err);
-          setUserId(null);
-        });
-    }
+        } else if (method === "user_id") {
+          const saved = localStorage.getItem("roblox_user_id");
+          if (saved) setUserId(parseInt(saved));
+        }
+      } catch (err) {
+        console.error("Failed to get authenticated user:", err);
+        setUserId(null);
+      } finally {
+        setIsBooting(false);
+      }
+    };
+
+    initAuth();
   }, []);
 
   useEffect(() => {
-    if (userId) {
-      setIsLoading(true);
-      Promise.all([fetchFriends()]).finally(() => setIsLoading(false));
-    }
-  }, [userId, fetchFriends]);
+    if (!userId) return;
 
-  useEffect(() => {
-    if (userId) {
-      setRecommended([]);
-      invoke<Game[]>("get_games_by_topic", {
-        topic: "Recommended For You",
-        provideThumbnail: true,
-      })
-        .then((res) => {
-          console.log("Recommended Games:", res);
-          setRecommended(res);
-        })
-        .catch((err) =>
-          console.error("Failed to fetch recommended games:", err),
-        );
-      invoke<Game[]>("get_games_by_topic", {
-        topic: "Continue",
-        provideThumbnail: true,
-        thumbnailType: "icon",
-      })
-        .then((res) => {
-          console.log("Continue Games:", res);
-          setContinue(res);
-        })
-        .catch((err) => console.error("Failed to fetch continue games:", err));
-      invoke<Game[]>("get_games_by_topic", {
-        topic: "Favorites",
-        provideThumbnail: true,
-        thumbnailType: "icon",
-      })
-        .then((res) => {
-          console.log("Favorited Games:", res);
-          setFavorites(res);
-        })
-        .catch((err) => console.error("Failed to fetch favorited games:", err));
-    }
-  }, [userId]);
+    const loadAllData = async () => {
+      setIsLoading(true);
+
+      try {
+        await fetchFriends();
+
+        const [recommendedRes, continueRes, favoritesRes] = await Promise.all([
+          invoke<Game[]>("get_games_by_topic", {
+            topic: "Recommended For You",
+            provideThumbnail: true,
+          }),
+          invoke<Game[]>("get_games_by_topic", {
+            topic: "Continue",
+            provideThumbnail: true,
+            thumbnailType: "icon",
+          }),
+          invoke<Game[]>("get_games_by_topic", {
+            topic: "Favorites",
+            provideThumbnail: true,
+            thumbnailType: "icon",
+          }),
+        ]);
+
+        setRecommended(recommendedRes);
+        setContinue(continueRes);
+        setFavorites(favoritesRes);
+      } catch (err) {
+        console.error("Failed to load app data:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadAllData();
+  }, [userId, fetchFriends]);
 
   const handleLogin = (id: number) => {
     localStorage.setItem("roblox_user_id", id.toString());
+    localStorage.setItem("login_method", "user_id");
     setUserId(id);
   };
+
+  if (isBooting) {
+    return (
+      <div className="initial-load fullscreen">
+        <div className="loading-spinner"/>
+        <div className="loading-text">Booting up...</div>
+      </div>
+    );
+  }
 
   if (!userId) {
     return <Welcome onLogin={handleLogin} />;
@@ -208,15 +221,19 @@ function App() {
     <div className="container">
       <BlurProvider>
         <Topbar name={greetName} />
+
         {isLoading ? (
-          <div className="loading-spinner">Loading your data...</div>
+          <div className="initial-load">
+            <div className="loading-spinner"/>
+            <div className="loading-text">Loading your data...</div>
+          </div>
         ) : (
           <>
             <FriendsCarousel title="Friends" friends={friends} />
             <hr className="section-divider" />
             <GameCarousel title="Favorite Games" games={favorites} />
             <GameCarousel title="Continue" games={continueGames} />
-            <GameCarousel title="Recommended For You" games={recommended} />
+            <GameGallery title="Recommended For You" games={recommended} />
           </>
         )}
       </BlurProvider>

@@ -89,7 +89,6 @@ const FriendsCarousel = ({ title, friends }: FriendsCarouselProps) => {
         <div
           className="viewport"
           ref={viewportRef}
-          style={{ overflow: "hidden", width: "100%" }}
           onWheel={handleWheel}
           onMouseEnter={lockBodyScroll}
           onMouseLeave={unlockBodyScroll}
@@ -100,12 +99,9 @@ const FriendsCarousel = ({ title, friends }: FriendsCarouselProps) => {
           <div
             className="track"
             style={{
-              display: "flex",
-              gap: `${gap}px`,
               transform: `translateX(-${index * step}px)`,
               paddingLeft: `${start * step}px`,
               transition: "transform 0.3s ease-out",
-              width: "max-content",
             }}
           >
             {visibleFriends.map((friend) => (
@@ -113,7 +109,6 @@ const FriendsCarousel = ({ title, friends }: FriendsCarouselProps) => {
                 className="friend-card"
                 key={friend.id}
                 onClick={() => setSelectedFriend(friend)}
-                style={{ width: cardWidth, flexShrink: 0 }}
               >
                 <div className="avatar-wrapper">
                   <img src={friend.avatarUrl} alt={friend.displayName} />

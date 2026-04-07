@@ -1,10 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import GameModal from "../Game/GameModal";
+import { ThumbsUp, Users } from "lucide-react";
 
 type Game = {
   id: number;
   name: string;
   thumbnail?: string;
+  playerCount: number;
+  [key: string]: any;
 };
 
 interface GameCarouselProps {
@@ -71,7 +74,6 @@ const GameCarousel = ({ title, games }: GameCarouselProps) => {
         <div
           className="viewport"
           ref={viewportRef}
-          style={{ overflow: "hidden", width: "100%" }}
           onWheel={handleWheel}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -80,12 +82,9 @@ const GameCarousel = ({ title, games }: GameCarouselProps) => {
           <div
             className="track"
             style={{
-              display: "flex",
-              gap: `${gap}px`,
               transform: `translateX(-${index * step}px)`,
               paddingLeft: `${start * step}px`,
               transition: "transform 0.4s ease-out",
-              width: "max-content",
             }}
           >
             {visibleGames.map((game) => (
@@ -93,14 +92,29 @@ const GameCarousel = ({ title, games }: GameCarouselProps) => {
                 className="card"
                 key={game.id}
                 onClick={() => setSelectedGame(game)}
-                style={{ width: cardWidth, flexShrink: 0 }}
               >
-                <img
-                  src={game.thumbnail}
-                  alt={game.name}
-                  style={{ width: "100%" }}
-                />
+                <img src={game.thumbnail} alt={game.name} />
                 <p>{game.name}</p>
+                <div className="sub-info">
+                  <p className="like-ratio">
+                    <ThumbsUp size={16} />
+                    {Math.round(
+                      (game.totalUpVotes /
+                        (game.totalUpVotes + game.totalDownVotes)) *
+                        100,
+                    )}
+                    %
+                  </p>
+
+                  <p className="player-count">
+                    <Users size={16} />
+                    {new Intl.NumberFormat("en-US", {
+                      notation: "compact",
+                      compactDisplay: "short",
+                      maximumFractionDigits: 1,
+                    }).format(game.playerCount)}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
