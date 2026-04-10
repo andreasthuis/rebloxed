@@ -1,8 +1,13 @@
+import { useState } from "react";
+import UserProfileModal from "../User/UserProfileModal";
+
 interface TopbarProps {
-  name: string | null | undefined;
+  user: { [key: string]: any } | null;
 }
 
-function Topbar({ name }: TopbarProps) {
+function Topbar({ user }: TopbarProps) {
+  const [selectedProfile, setSelectedProfile] = useState<true | false>(false);
+  
   return (
     <nav className="main-nav">
       <div className="nav-container">
@@ -30,14 +35,25 @@ function Topbar({ name }: TopbarProps) {
 
           <div className="nav-user-info">
             <span className="welcome-text">
-              Welcome, <strong>{name || "Guest"}</strong>
+              Welcome, <strong>{user?.displayName || "Guest"}</strong>
             </span>
             <div className="nav-profile">
-              <div className="nav-avatar-placeholder" />
+              <img
+                className="nav-avatar"
+                src={user?.avatarUrl || ""}
+                alt="Profile"
+                onClick={() => setSelectedProfile(true)}
+              />
             </div>
           </div>
         </div>
       </div>
+      {selectedProfile && user && (
+        <UserProfileModal
+          prop={user.id}
+          onClose={() => setSelectedProfile(false)}
+        />
+      )}
     </nav>
   );
 }

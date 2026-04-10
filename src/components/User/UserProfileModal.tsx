@@ -1,6 +1,7 @@
 import UserProfileDetails from "./UserProfileDetails";
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useBlur } from "../misc/BlurContext";
 
 interface User {
@@ -30,8 +31,13 @@ const UserProfileModal = ({ prop, onClose }: UserProfileModalProps) => {
   if (!prop) return null;
 
   const fetchFullUser = async (id: number): Promise<User | null> => {
-    const userData = await invoke<User>("get_user", { id });
-    return userData;
+    try {
+      const userData = await invoke<User>("get_user", { id });
+      return userData;
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+      return null;
+    }
   };
 
   useEffect(() => {
@@ -60,10 +66,10 @@ const UserProfileModal = ({ prop, onClose }: UserProfileModalProps) => {
 
   useEffect(() => {
     acquire();
-    return release;
-  }, []);
+    return () => release();
+  }, [acquire, release]);
 
-  return (
+  const modalJSX = (
     <div
       className="modal-overlay"
       onClick={onClose}
@@ -71,9 +77,12 @@ const UserProfileModal = ({ prop, onClose }: UserProfileModalProps) => {
       role="dialog"
     >
       {isLoading ? (
-        <div className="loading-spinner"/>
+        <div className="loading-spinner" />
       ) : (
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div 
+          className="modal-content" 
+          onClick={(e) => e.stopPropagation()}
+        >
           <button
             className="modal-close-btn"
             onClick={onClose}
@@ -87,6 +96,8 @@ const UserProfileModal = ({ prop, onClose }: UserProfileModalProps) => {
       )}
     </div>
   );
+
+  return createPortal(modalJSX, document.body);
 };
 
 export default UserProfileModal;

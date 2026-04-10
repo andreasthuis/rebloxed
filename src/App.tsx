@@ -35,7 +35,8 @@ function App() {
   const [userId, setUserId] = useState<number | null>(null);
   const [isBooting, setIsBooting] = useState(true);
 
-  const [greetName, setGreetName] = useState<string | null>(null);
+  const [mainUser, setMainUser] = useState<{[key: string]: any} | null>(null);
+
   const [favorites, setFavorites] = useState<Game[]>([]);
   const [recommended, setRecommended] = useState<Game[]>([]);
   const [continueGames, setContinue] = useState<Game[]>([]);
@@ -65,8 +66,8 @@ function App() {
 
         if (method === "cookie") {
           const user = await invoke<any>("get_authenticated_user");
-          setGreetName(user.displayName);
           setUserId(user.id);
+          invoke<any>("get_user", { id: user.id }).then((mainUser) => setMainUser(mainUser));
         } else if (method === "user_id") {
           const saved = localStorage.getItem("roblox_user_id");
           if (saved) setUserId(parseInt(saved));
@@ -144,7 +145,7 @@ function App() {
   return (
     <div className="container">
       <BlurProvider>
-        <Topbar name={greetName} />
+        <Topbar user={mainUser} />
 
         {isLoading ? (
           <div className="initial-load">

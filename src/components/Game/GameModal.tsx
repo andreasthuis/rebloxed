@@ -1,18 +1,18 @@
 import GameDetails from "./GameDetails";
 import { useBlur } from "../misc/BlurContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom"; // Import the Portal tool
 import { invoke } from "@tauri-apps/api/core";
-import { useState } from "react";
+
 interface GameModalProps {
   game_id: number;
   onClose: () => void;
 }
 
 const GameModal = ({ game_id, onClose }: GameModalProps) => {
-  if (!game_id) return null;
-
   const [game, setGame] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { acquire, release } = useBlur();
 
   useEffect(() => {
     let cancelled = false;
@@ -50,14 +50,14 @@ const GameModal = ({ game_id, onClose }: GameModalProps) => {
     };
   }, [game_id]);
 
-  const { acquire, release } = useBlur();
-
   useEffect(() => {
     acquire();
-    return release;
-  }, []);
+    return () => release();
+  }, [acquire, release]);
 
-  return (
+  if (!game_id) return null;
+
+  const modalUI = (
     <div
       className="modal-overlay"
       onClick={onClose}
@@ -67,11 +67,14 @@ const GameModal = ({ game_id, onClose }: GameModalProps) => {
       {isLoading ? (
         <div className="loading-spinner" />
       ) : (
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div 
+          className="modal-content" 
+          onClick={(e) => e.stopPropagation()}
+        >
           <button
             className="modal-close-btn"
             onClick={onClose}
-            aria-label="Close profile"
+            aria-label="Close game details"
           >
             ✕
           </button>
@@ -81,6 +84,8 @@ const GameModal = ({ game_id, onClose }: GameModalProps) => {
       )}
     </div>
   );
+
+  return createPortal(modalUI, document.body);
 };
 
 export default GameModal;

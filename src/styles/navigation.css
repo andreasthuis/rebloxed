@@ -103,14 +103,13 @@
 }
 
 .nav-logo,
-.nav-avatar-placeholder {
-  background: var(--blue);
+.nav-avatar {
   width: 36px;
   height: 36px;
   border-radius: 8px;
 }
 
-.nav-avatar-placeholder {
+.nav-avatar {
   border-radius: 50%;
   border: 2px solid var(--border-color);
 }
