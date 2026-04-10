@@ -229,7 +229,7 @@ export default function UserProfileDetails({ user }: Props) {
             </div>
 
             <h3>Bio</h3>
-            <p className="user-bio">{user.description || "No bio provided."}</p>
+            <p className="user-bio description">{user.description || "No bio provided."}</p>
           </div>
         ) : (
           <div className="friends-list-tab">

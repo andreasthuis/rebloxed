@@ -1,5 +1,5 @@
 [package]
-name = "roblox-but-better"
+name = "rebloxed"
 version = "0.1.0"
 description = "A Tauri App"
 authors = ["you"]
@@ -32,5 +32,6 @@ rand = "0.10.0"
 tauri-plugin-keyring = "0.1.0"
 tauri-plugin-log = "2"
 anyhow = "1.0"
-ro-rs = "0.1.1"
+ro-rs = "0.1.2"
 uuid = { version = "1.23.0", features = ["v4"] }
+futures = "0.3.32"

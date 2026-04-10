@@ -1,6 +1,5 @@
 use std::process::Command;
 
-/// Launch Roblox with cross-platform protocol handling
 #[tauri::command(rename_all = "snake_case")]
 pub async fn launch_roblox(place_id: String, server_id: Option<String>) -> Result<(), String> {
     let roblox_uri = match server_id {

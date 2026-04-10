@@ -7,6 +7,50 @@ use crate::core::data::roblox_request;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
+pub struct Game {
+    pub id: u64,
+    pub root_place_id: u64,
+    pub name: String,
+    pub description: String,
+    pub source_name: Option<String>,
+    pub source_description: Option<String>,
+    pub creator: Creator,
+    pub price: Option<u64>,
+    pub allowed_gear_genres: Vec<String>,
+    pub allowed_gear_categories: Vec<String>,
+    pub is_genre_enforced: bool,
+    pub copying_allowed: bool,
+    pub playing: u64,
+    pub visits: u64,
+    pub max_players: u32,
+    pub created: String,
+    pub updated: String,
+    pub studio_access_to_apis_allowed: bool,
+    pub create_vip_servers_allowed: bool,
+    pub universe_avatar_type: String,
+    pub genre: String,
+    #[serde(rename = "genre_l1")]
+    pub genre_l1: String,
+    #[serde(rename = "genre_l2")]
+    pub genre_l2: String,
+    #[serde(rename = "untranslated_genre_l1")]
+    pub untranslated_genre_l1: String,
+    pub is_all_genre: bool,
+    pub is_favorited_by_user: bool,
+    pub favorited_count: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct Creator {
+    pub id: u64,
+    pub name: String,
+    pub r#type: String,
+    pub has_verified_badge: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct GameDetails {
     pub universe_id: u64,
     pub name: String,
@@ -129,7 +173,6 @@ pub async fn fetch_thumbnails(
             if let Ok(json) = serde_json::from_str::<serde_json::Value>(&res_body) {
                 if let Some(data) = json["data"].as_array() {
                     for item in data {
-                        // FIX: Icons use "targetId", Thumbnails use "universeId"
                         let id = item["targetId"]
                             .as_u64()
                             .or_else(|| item["universeId"].as_u64())
@@ -138,7 +181,6 @@ pub async fn fetch_thumbnails(
                         let image_url = if thumbnail_type == "icon" {
                             item["imageUrl"].as_str()
                         } else {
-                            // Thumbnails are nested in an array
                             item["thumbnails"]
                                 .as_array()
                                 .and_then(|t| t.get(0))
@@ -186,4 +228,32 @@ pub async fn get_games_by_topic(
     }
 
     Ok(games)
+}
+
+#[tauri::command]
+pub async fn get_game_details(app: tauri::AppHandle, id: u64, get_thumbnail: Option<bool>) -> Result<(Game, Option<String>), String> {
+    let url = format!("https://games.roblox.com/v1/games?universeIds={}", id);
+    
+    let thumbnail = if get_thumbnail.unwrap_or(false) {
+        let thumbs = fetch_thumbnails(app.clone(), vec![id], None, None).await;
+        thumbs.get(&id).cloned()
+    } else {
+        None
+    };
+    
+    let response = roblox_request(app, "GET".to_string(), url, None).await?;
+    
+    let json: serde_json::Value = serde_json::from_str(&response)
+        .map_err(|e| format!("Failed to parse game details JSON: {}", e))?;
+
+    let game_value = json["data"][0].clone();
+
+    if game_value.is_null() {
+        return Err("No game details found for this ID".to_string());
+    }
+
+    let details: Game = serde_json::from_value(game_value)
+        .map_err(|e| format!("Failed to map JSON to Game struct: {}", e))?;
+
+    Ok((details, thumbnail))
 }

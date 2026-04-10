@@ -92,7 +92,7 @@ const GameGallery = ({ title, games }: GameGalleryProps) => {
       )}
 
       {selectedGame && (
-        <GameModal game={selectedGame} onClose={() => setSelectedGame(null)} />
+        <GameModal game_id={selectedGame.universeId} onClose={() => setSelectedGame(null)} />
       )}
     </div>
   );

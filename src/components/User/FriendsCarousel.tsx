@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import UserProfileModal from "../User/UserProfileModal";
 
+import FailedPfp from "../../assets/FailedPfp.webp";
+
 interface User {
   id: number;
   displayName: string;
@@ -25,7 +27,7 @@ const FriendsCarousel = ({ title, friends }: FriendsCarouselProps) => {
   const viewportRef = useRef<HTMLDivElement>(null);
   const startX = useRef<number | null>(null);
 
-  const cardWidth = 120;
+  const cardWidth = 125;
   const gap = 15;
   const step = cardWidth + gap;
   const buffer = 4;
@@ -44,7 +46,7 @@ const FriendsCarousel = ({ title, friends }: FriendsCarouselProps) => {
     return () => window.removeEventListener("resize", updateVisibleCount);
   }, [step]);
 
-  const maxIndex = Math.max(0, friends.length - visibleCount);
+  const maxIndex = Math.max(0, friends.length - visibleCount + 1);
 
   const next = () => setIndex((prev) => Math.min(prev + 1, maxIndex));
   const prev = () => setIndex((prev) => Math.max(prev - 1, 0));
@@ -111,7 +113,7 @@ const FriendsCarousel = ({ title, friends }: FriendsCarouselProps) => {
                 onClick={() => setSelectedFriend(friend)}
               >
                 <div className="avatar-wrapper">
-                  <img src={friend.avatarUrl} alt={friend.displayName} />
+                  <img src={friend.avatarUrl || FailedPfp} alt={friend.displayName} />
                   {friend.presence === "Online" && (
                     <div className="online-indicator" />
                   )}

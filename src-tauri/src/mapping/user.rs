@@ -4,12 +4,11 @@ use ro_rs::{
 };
 use serde::Serialize;
 use tauri::AppHandle;
-use tauri_plugin_log::log;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct User {
-    pub id: u64,
+    pub id: i64,
     pub display_name: String,
     pub username: String,
     pub avatar_url: Option<String>,
@@ -21,20 +20,20 @@ pub struct User {
 }
 
 #[tauri::command]
-pub async fn get_user(_app: AppHandle, id: u64) -> Result<User, String> {
+pub async fn get_user(_app: AppHandle, id: i64) -> Result<User, String> {
     let client = Client::new();
 
-    let user_ids = vec![id]; 
-    let id_slice = &user_ids;
+    let user_ids = vec![id as u64];
+    let id_slice: &[u64] = &user_ids;
 
     let (user_res, presence_res, thumb_res) = tokio::join!(
         client.get_user(id),
         client.presence.get_user_presences(id_slice),
         client.thumbnails.get_user_avatar_thumbnails(
             id_slice,
-            "150x150", 
-            ThumbnailFormat::Png, 
-            true, 
+            "150x150",
+            ThumbnailFormat::Png,
+            true,
             AvatarThumbnailType::HeadShot
         )
     );
@@ -60,16 +59,11 @@ pub async fn get_user(_app: AppHandle, id: u64) -> Result<User, String> {
     }
     .to_string();
 
-    log::info!("Request to get user {} succeeded", id);
-
     Ok(User {
         id,
         display_name: user_info.display_name,
         username: user_info.name,
-        avatar_url: thumbs
-            .first()
-            .map(|t| t.image_url.clone())
-            .flatten(),
+        avatar_url: thumbs.first().map(|t| t.image_url.clone()).flatten(),
 
         presence_type: p_type,
         is_online: p_type > 0,

@@ -1374,12 +1374,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "futures"
+version = "0.3.32"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8b147ee9d1f6d097cef9ce628cd2ee62288d963e16fb287bd9286455b241382d"
+dependencies = [
+ "futures-channel",
+ "futures-core",
+ "futures-executor",
+ "futures-io",
+ "futures-sink",
+ "futures-task",
+ "futures-util",
+]
+
+[[package]]
 name = "futures-channel"
 version = "0.3.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "07bbe89c50d7a535e539b8c17bc0b49bdb77747034daa8087407d655f3f7cc1d"
 dependencies = [
  "futures-core",
+ "futures-sink",
 ]
 
 [[package]]
@@ -1447,6 +1463,7 @@ version = "0.3.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "389ca41296e6190b48053de0321d02a77f32f8a5d2461dd38762c0593805c6d6"
 dependencies = [
+ "futures-channel",
  "futures-core",
  "futures-io",
  "futures-macro",
@@ -3631,6 +3648,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "20675572f6f24e9e76ef639bc5552774ed45f1c30e2951e1e99c59888861c539"
 
 [[package]]
+name = "rebloxed"
+version = "0.1.0"
+dependencies = [
+ "aes-gcm",
+ "anyhow",
+ "futures",
+ "rand 0.10.0",
+ "reqwest 0.13.2",
+ "ro-rs",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-http",
+ "tauri-plugin-keyring",
+ "tauri-plugin-log",
+ "tauri-plugin-opener",
+ "tauri-plugin-os",
+ "tauri-plugin-shell",
+ "tokio",
+ "uuid",
+]
+
+[[package]]
 name = "redox_syscall"
 version = "0.5.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3838,9 +3879,9 @@ dependencies = [
 
 [[package]]
 name = "ro-rs"
-version = "0.1.1"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "19120ee606bc08e2abade7920257c22f4b2c2ed2ca5c5edd9729337360830ccb"
+checksum = "6887d5acece4cbaf3525a4057cdb5143b1afeed9bd307bcecfb6f0ee4c449e18"
 dependencies = [
  "async-trait",
  "chrono",
@@ -3849,29 +3890,6 @@ dependencies = [
  "serde_json",
  "thiserror 1.0.69",
  "tokio",
-]
-
-[[package]]
-name = "roblox-but-better"
-version = "0.1.0"
-dependencies = [
- "aes-gcm",
- "anyhow",
- "rand 0.10.0",
- "reqwest 0.13.2",
- "ro-rs",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-http",
- "tauri-plugin-keyring",
- "tauri-plugin-log",
- "tauri-plugin-opener",
- "tauri-plugin-os",
- "tauri-plugin-shell",
- "tokio",
- "uuid",
 ]
 
 [[package]]

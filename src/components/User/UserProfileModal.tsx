@@ -37,10 +37,8 @@ const UserProfileModal = ({ prop, onClose }: UserProfileModalProps) => {
   useEffect(() => {
     let cancelled = false;
 
-    // If full user object provided → use it directly
     if (typeof prop === "object") {
       setUser(prop);
-      console.log("Using provided user object:", prop);
       setIsLoading(false);
       return;
     }
@@ -73,7 +71,7 @@ const UserProfileModal = ({ prop, onClose }: UserProfileModalProps) => {
       role="dialog"
     >
       {isLoading ? (
-        <div className="loading-spinner">Loading...</div>
+        <div className="loading-spinner"/>
       ) : (
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
           <button

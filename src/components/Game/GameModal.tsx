@@ -1,14 +1,54 @@
 import GameDetails from "./GameDetails";
 import { useBlur } from "../misc/BlurContext";
 import { useEffect } from "react";
-
+import { invoke } from "@tauri-apps/api/core";
+import { useState } from "react";
 interface GameModalProps {
-  game: any;
+  game_id: number;
   onClose: () => void;
 }
 
-const GameModal = ({ game, onClose }: GameModalProps) => {
-  if (!game) return null;
+const GameModal = ({ game_id, onClose }: GameModalProps) => {
+  if (!game_id) return null;
+
+  const [game, setGame] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+
+    const fetchGame = async () => {
+      try {
+        const [gameData, thumbnail] = await invoke<[any, string | null]>(
+          "get_game_details",
+          {
+            id: game_id,
+            getThumbnail: true,
+          },
+        );
+
+        if (!cancelled) {
+          setGame({
+            ...gameData,
+            thumbnail: thumbnail,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch game details:", err);
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchGame();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [game_id]);
 
   const { acquire, release } = useBlur();
 
@@ -18,13 +58,27 @@ const GameModal = ({ game, onClose }: GameModalProps) => {
   }, []);
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>
-          ✕
-        </button>
-        <GameDetails game={game} />
-      </div>
+    <div
+      className="modal-overlay"
+      onClick={onClose}
+      aria-modal="true"
+      role="dialog"
+    >
+      {isLoading ? (
+        <div className="loading-spinner" />
+      ) : (
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <button
+            className="modal-close-btn"
+            onClick={onClose}
+            aria-label="Close profile"
+          >
+            ✕
+          </button>
+
+          {game && <GameDetails game={game} />}
+        </div>
+      )}
     </div>
   );
 };

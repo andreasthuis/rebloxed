@@ -37,9 +37,6 @@ const GameDetails = ({ game }: GameDetailsProps) => {
   };
 
   const launchRoblox = async (placeId: number, serverId?: string) => {
-    console.log(
-      `Attempting to launch Roblox for Place ID: ${placeId} with Server ID: ${serverId || "N/A"}`,
-    );
     try {
       console.log(`Requesting backend to launch Place ID: ${placeId}`);
       await invoke("launch_roblox", {
@@ -54,7 +51,7 @@ const GameDetails = ({ game }: GameDetailsProps) => {
   };
 
   useEffect(() => {
-    if (activeTab === "servers" && game.rootPlace?.id) {
+    if (activeTab === "servers" && game.rootPlaceId) {
       fetchServers();
     }
   }, [activeTab]);
@@ -63,7 +60,7 @@ const GameDetails = ({ game }: GameDetailsProps) => {
     setLoadingServers(true);
     try {
       const res = await fetch(
-        `https://games.roblox.com/v1/games/${game.rootPlace.id}/servers/Public?limit=10`,
+        `https://games.roblox.com/v1/games/${game.rootPlaceId}/servers/Public?limit=10`,
       );
       const json = await res.json();
       setServers(json.data || []);
@@ -77,7 +74,7 @@ const GameDetails = ({ game }: GameDetailsProps) => {
   return (
     <div className="game-details">
       <div className="details-header">
-        <img src={game.thumbnail} alt={game.name} className="details-icon" />
+        <img src={game.thumbnail} alt={game.name} className="details-thumbnail" />
         <div className="details-info">
           <h1>{game.name}</h1>
           <p className="creator" onClick={openCreatorPage}>
@@ -85,7 +82,7 @@ const GameDetails = ({ game }: GameDetailsProps) => {
           </p>
           <button
             className="play-button"
-            onClick={() => launchRoblox(game?.rootPlace?.id, undefined)}
+            onClick={() => launchRoblox(game?.rootPlaceId, undefined)}
           >
             Play
           </button>
@@ -127,7 +124,7 @@ const GameDetails = ({ game }: GameDetailsProps) => {
               <div className="stat">
                 <strong>Visits</strong>
                 <br />
-                {formatNum(game?.placeVisits || 0)}
+                {formatNum(game?.visits || 0)}
               </div>
 
               <div className="stat">
@@ -173,7 +170,7 @@ const GameDetails = ({ game }: GameDetailsProps) => {
 
                   <button
                     className="join-btn"
-                    onClick={() => launchRoblox(game?.rootPlace?.id, server.id)}
+                    onClick={() => launchRoblox(game?.rootPlaceId, server.id)}
                   >
                     Join
                   </button>

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import GameCarousel from "./components/Game/GameCarousel";
 import FriendsCarousel from "./components/User/FriendsCarousel";
 import "./App.css";
@@ -7,8 +7,6 @@ import Welcome from "./components/greet/Welcome";
 import { invoke } from "@tauri-apps/api/core";
 import { BlurProvider } from "./components/misc/BlurContext";
 import GameGallery from "./components/Game/GameGallery";
-
-import failedPfp from "./assets/FailedPfp.webp";
 
 interface Friend {
   id: number;
@@ -44,96 +42,21 @@ function App() {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchFriends = useCallback(async () => {
-    if (!userId) return;
+  useEffect(() => {
+    const handleDragStart = (e: DragEvent) => {
+      const target = e.target as HTMLElement;
 
-    try {
-      const resString = await invoke<string>("roblox_request", {
-        method: "GET",
-        url: `https://friends.roblox.com/v1/users/${userId}/friends`,
-      });
-
-      const { data: friendsData } = JSON.parse(resString);
-
-      const validFriendIds = friendsData
-        .filter((f: any) => f.id > 0)
-        .map((f: any) => f.id);
-
-      if (validFriendIds.length === 0) {
-        setFriends([]);
-        return;
+      if (target.tagName === "IMG" || target.tagName === "A") {
+        e.preventDefault();
       }
+    };
 
-      const [thumbRes, presenceRes] = await Promise.all([
-        invoke<string>("roblox_request", {
-          method: "GET",
-          url: `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${validFriendIds.join(",")}&size=150x150&format=Png&isCircular=true`,
-        }),
-        invoke<string>("roblox_request", {
-          method: "POST",
-          url: `https://presence.roblox.com/v1/presence/users`,
-          body: JSON.stringify({ userIds: validFriendIds }),
-        }),
-      ]);
+    document.addEventListener("dragstart", handleDragStart);
 
-      const namesRes = await Promise.all(
-        validFriendIds.map((id: number) =>
-          invoke<string>("roblox_request", {
-            method: "GET",
-            url: `https://users.roblox.com/v1/users/${id}`,
-          }),
-        ),
-      );
-
-      const { data: thumbData } = JSON.parse(thumbRes);
-      const { userPresences } = JSON.parse(presenceRes);
-      const namesData = namesRes.map((res: string) => JSON.parse(res));
-
-      const finalFriends: Friend[] = validFriendIds
-        .map((id: number): Friend => {
-          const originalFriendData = friendsData.find((f: any) => f.id === id);
-          const nameInfo = namesData?.find((n: any) => n.id === id);
-          const thumb = thumbData?.find((t: any) => t.targetId === id);
-          const presence = userPresences?.find((p: any) => p.userId === id);
-          const pType = presence?.userPresenceType ?? 0;
-
-          return {
-            id,
-            displayName:
-              nameInfo?.displayName ||
-              originalFriendData?.displayName ||
-              "Unknown Player",
-            username: nameInfo?.name || originalFriendData?.name || "Unknown",
-            avatarUrl: thumb?.imageUrl || failedPfp,
-            presenceType: pType,
-            isOnline: pType > 0,
-            presence:
-              pType === 2
-                ? "In Game"
-                : pType === 3
-                  ? "In Studio"
-                  : pType === 1
-                    ? "Online"
-                    : "Offline",
-            gameId: presence?.id || null,
-            presenceData: presence,
-            description: nameInfo?.description || "",
-            created: nameInfo?.created || "",
-            friends: true,
-          };
-        })
-        .filter((friend: Friend) => friend.username !== "Unknown")
-        .sort((a: Friend, b: Friend) => {
-          const getPriority = (t: number) =>
-            t === 2 ? 3 : t === 1 ? 2 : t === 3 ? 1 : 0;
-          return getPriority(b.presenceType) - getPriority(a.presenceType);
-        });
-
-      setFriends(finalFriends);
-    } catch (err) {
-      console.error("Failed to fetch friends metadata:", err);
-    }
-  }, [userId]);
+    return () => {
+      document.removeEventListener("dragstart", handleDragStart);
+    };
+  }, []);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -166,28 +89,29 @@ function App() {
       setIsLoading(true);
 
       try {
-        await fetchFriends();
-
-        const [recommendedRes, continueRes, favoritesRes] = await Promise.all([
-          invoke<Game[]>("get_games_by_topic", {
-            topic: "Recommended For You",
-            provideThumbnail: true,
-          }),
-          invoke<Game[]>("get_games_by_topic", {
-            topic: "Continue",
-            provideThumbnail: true,
-            thumbnailType: "icon",
-          }),
-          invoke<Game[]>("get_games_by_topic", {
-            topic: "Favorites",
-            provideThumbnail: true,
-            thumbnailType: "icon",
-          }),
-        ]);
+        const [recommendedRes, continueRes, favoritesRes, friendsRes] =
+          await Promise.all([
+            invoke<Game[]>("get_games_by_topic", {
+              topic: "Recommended For You",
+              provideThumbnail: true,
+            }),
+            invoke<Game[]>("get_games_by_topic", {
+              topic: "Continue",
+              provideThumbnail: true,
+              thumbnailType: "icon",
+            }),
+            invoke<Game[]>("get_games_by_topic", {
+              topic: "Favorites",
+              provideThumbnail: true,
+              thumbnailType: "icon",
+            }),
+            invoke<Friend[]>("get_user_friends", { userId }),
+          ]);
 
         setRecommended(recommendedRes);
         setContinue(continueRes);
         setFavorites(favoritesRes);
+        setFriends(friendsRes);
       } catch (err) {
         console.error("Failed to load app data:", err);
       } finally {
@@ -196,7 +120,7 @@ function App() {
     };
 
     loadAllData();
-  }, [userId, fetchFriends]);
+  }, [userId]);
 
   const handleLogin = (id: number) => {
     localStorage.setItem("roblox_user_id", id.toString());
@@ -207,7 +131,7 @@ function App() {
   if (isBooting) {
     return (
       <div className="initial-load fullscreen">
-        <div className="loading-spinner"/>
+        <div className="loading-spinner" />
         <div className="loading-text">Booting up...</div>
       </div>
     );
@@ -224,7 +148,7 @@ function App() {
 
         {isLoading ? (
           <div className="initial-load">
-            <div className="loading-spinner"/>
+            <div className="loading-spinner" />
             <div className="loading-text">Loading your data...</div>
           </div>
         ) : (
