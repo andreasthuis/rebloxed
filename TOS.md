@@ -16,11 +16,11 @@ License: This software is distributed under [Your License, e.g., MIT License], a
 3. Account Security & Responsibilities
    The security of your Roblox account is your sole responsibility.
 
-Authentication: rebloxed allows for login via UserID or .ROBLOSECURITY cookies.
+Authentication: rebloxed allows for login .ROBLOSECURITY cookies.
 
-Cookie Safety: You acknowledge that .ROBLOSECURITY cookies provide full access to your account. Never share this string.
+Cookie Safety: You acknowledge that .ROBLOSECURITY cookies provide full access to your account.
 
-Local-First Processing: rebloxed processes all sensitive authentication data locally on your machine. Because this project is open-source, you can verify that session cookies are not transmitted to any third-party servers under our control.
+Local-First Processing: rebloxed processes all sensitive authentication data locally on your machine. Because this project is open-source, you can verify that session cookies are not transmitted to any third-party servers.
 
 4. Prohibited Uses
    You agree not to use rebloxed to:

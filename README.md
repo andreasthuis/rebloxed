@@ -1,12 +1,6 @@
 # Rebloxed
 
-**Rebloxed** is a high-performance, lightweight custom launcher for Roblox built with Tauri, React, and TypeScript.
-
----
-
-## Overview
-
-Rebloxed streamlines the process of launching Roblox by removing unnecessary overhead and giving users direct control over client behavior. It is designed for users who want improved performance, easier account management, and deeper customization options.
+**Rebloxed** is a lightweight custom launcher for Roblox that is built with Tauri, React, and TypeScript.
 
 ---
 
@@ -14,15 +8,15 @@ Rebloxed streamlines the process of launching Roblox by removing unnecessary ove
 
 ### Account Manager
 
-Switch between multiple Roblox accounts without repeated logins.
+Easily switch between multiple Roblox accounts without having to log in repeatedly.
 
 ### Modern User Interface
 
-A clean, responsive dark-themed interface built with React.
+Enjoy a clean and responsive dark-themed interface made with React.
 
 ### Lightweight Architecture
 
-Powered by Rust through Tauri for minimal CPU and memory usage.
+Designed with Rust through Tauri for minimal CPU and memory use.
 
 ---
 
@@ -38,11 +32,11 @@ Powered by Rust through Tauri for minimal CPU and memory usage.
 
 ### Prerequisites
 
-Make sure the following tools are installed:
+Make sure you have the following tools installed:
 
 - **Rust** (via `rustup`)
-- **Node.js** (latest LTS recommended)
-- **System dependencies for Tauri** (refer to official Tauri documentation for your OS)
+- **Node.js** (latest LTS is recommended)
+- **System dependencies for Tauri** (check the official Tauri documentation for your OS)
 
 ---
 
@@ -96,13 +90,13 @@ For the best development experience, use:
 - rust-analyzer
 - ESLint
 
-Contributions are welcome. Please ensure your changes are well-tested and follow the existing project structure.
+Contributions are welcome. Please test your changes and follow the existing project structure.
 
 ---
 
 ## Disclaimer
 
-Rebloxed is a third-party tool and is not affiliated with, maintained by, or endorsed by Roblox Corporation. Use this software responsibly and ensure compliance with Roblox’s Terms of Service.
+Rebloxed is a third-party tool that is not affiliated with, maintained by, or endorsed by Roblox Corporation. Use this software responsibly and follow Roblox’s Terms of Service.
 
 ---
 
