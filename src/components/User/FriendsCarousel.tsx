@@ -1,21 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import UserProfileModal from "../User/UserProfileModal";
-
 import FailedPfp from "../../assets/FailedPfp.webp";
-
-interface User {
-  id: number;
-  displayName: string;
-  username: string;
-  avatarUrl: string;
-  presenceType: number;
-  isOnline: boolean;
-  presence: string;
-  gameId: string | null;
-  presenceData: any;
-  created: string;
-}
-
+import { User } from "../../types";
 interface FriendsCarouselProps {
   title: string;
   friends: User[];

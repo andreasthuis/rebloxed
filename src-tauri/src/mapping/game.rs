@@ -1,9 +1,15 @@
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::collections::HashMap;
+use std::sync::Arc;
+use tokio::sync::Mutex;
 use uuid::Uuid;
 
 use crate::core::data::roblox_request;
+
+pub struct SessionCache {
+    pub omni_data: Arc<Mutex<Option<OmniResponse>>>,
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -82,7 +88,7 @@ pub struct Sort {
     pub recommendation_list: Option<Vec<RecommendationItem>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct OmniResponse {
     #[serde(default)]
@@ -93,19 +99,15 @@ pub struct OmniResponse {
 
 pub async fn fetch_omni_data(app: tauri::AppHandle) -> Result<OmniResponse, String> {
     let url = "https://apis.roblox.com/discovery-api/omni-recommendation".to_string();
-    
+
     let payload = json!({
         "pageType": "GameHomePage",
         "sessionId": Uuid::new_v4().to_string(),
         "supportedContexts": ["Universe"]
-    }).to_string();
+    })
+    .to_string();
 
-    let raw_response = roblox_request(
-        app, 
-        "POST".to_string(), 
-        url, 
-        Some(payload)
-    ).await?;
+    let raw_response = roblox_request(app, "POST".to_string(), url, Some(payload)).await?;
 
     let data: OmniResponse = serde_json::from_str(&raw_response)
         .map_err(|e| format!("JSON Deserialization failed: {}", e))?;
@@ -124,49 +126,55 @@ pub fn filter_games_by_topic(data: &OmniResponse, search_topic: &str) -> Vec<Gam
     });
 
     match (found_sort, &data.content_metadata) {
-        (Some(sort), Some(metadata)) => {
-            sort.recommendation_list
-                .as_ref()
-                .map(|list| {
-                    list.iter()
-                        .filter(|item| item.content_type == "Game")
-                        .filter_map(|item| {
-                            let id_str = item.content_id.to_string();
-                            metadata.game.get(&id_str).cloned()
-                        })
-                        .collect()
-                })
-                .unwrap_or_default()
-        }
+        (Some(sort), Some(metadata)) => sort
+            .recommendation_list
+            .as_ref()
+            .map(|list| {
+                list.iter()
+                    .filter(|item| item.content_type == "Game")
+                    .filter_map(|item| {
+                        let id_str = item.content_id.to_string();
+                        metadata.game.get(&id_str).cloned()
+                    })
+                    .collect()
+            })
+            .unwrap_or_default(),
         _ => Vec::new(),
     }
 }
 
 pub async fn fetch_thumbnails(
-    app: tauri::AppHandle, 
-    universe_ids: Vec<u64>, 
-    size: Option<String>, 
-    t_type: Option<String>
+    app: tauri::AppHandle,
+    universe_ids: Vec<u64>,
+    size: Option<String>,
+    t_type: Option<String>,
 ) -> HashMap<u64, String> {
     let mut all_thumbnails = HashMap::new();
-    let thumbnail_type = t_type.unwrap_or_else(|| "thumbnail".to_string()).to_lowercase();
-    
+    let thumbnail_type = t_type
+        .unwrap_or_else(|| "thumbnail".to_string())
+        .to_lowercase();
+
     let (base_url, default_size) = if thumbnail_type == "icon" {
         ("https://thumbnails.roblox.com/v1/games/icons", "150x150")
     } else {
-        ("https://thumbnails.roblox.com/v1/games/multiget/thumbnails", "768x432")
+        (
+            "https://thumbnails.roblox.com/v1/games/multiget/thumbnails",
+            "768x432",
+        )
     };
 
     let thumbnail_size = size.unwrap_or_else(|| default_size.to_string());
 
     for chunk in universe_ids.chunks(50) {
-        let ids_query = chunk.iter().map(|id| id.to_string()).collect::<Vec<String>>().join(",");
+        let ids_query = chunk
+            .iter()
+            .map(|id| id.to_string())
+            .collect::<Vec<String>>()
+            .join(",");
 
         let url = format!(
             "{}?universeIds={}&size={}&format=Png&isCircular=false",
-            base_url,
-            ids_query,
-            thumbnail_size
+            base_url, ids_query, thumbnail_size
         );
 
         if let Ok(res_body) = roblox_request(app.clone(), "GET".into(), url, None).await {
@@ -177,7 +185,7 @@ pub async fn fetch_thumbnails(
                             .as_u64()
                             .or_else(|| item["universeId"].as_u64())
                             .unwrap_or(0);
-                        
+
                         let image_url = if thumbnail_type == "icon" {
                             item["imageUrl"].as_str()
                         } else {
@@ -185,8 +193,9 @@ pub async fn fetch_thumbnails(
                                 .as_array()
                                 .and_then(|t| t.get(0))
                                 .and_then(|first| first["imageUrl"].as_str())
-                        }.map(|s| s.to_string());
-                        
+                        }
+                        .map(|s| s.to_string());
+
                         if id != 0 {
                             all_thumbnails.insert(id, image_url.unwrap_or_default());
                         }
@@ -200,14 +209,28 @@ pub async fn fetch_thumbnails(
 
 #[tauri::command]
 pub async fn get_games_by_topic(
-    app: tauri::AppHandle, 
+    app: tauri::AppHandle,
+    cache: tauri::State<'_, SessionCache>,
     topic: String,
     limit: Option<usize>,
     provide_thumbnail: Option<bool>,
     thumbnail_size: Option<String>,
     thumbnail_type: Option<String>,
 ) -> Result<Vec<GameDetails>, String> {
-    let full_data = fetch_omni_data(app.clone()).await?;
+    let mut cache_lock = cache.omni_data.lock().await;
+
+    let full_data = if let Some(cached) = &*cache_lock {
+        cached.clone()
+    } else {
+        let fresh = fetch_omni_data(app.clone()).await?;
+
+        *cache_lock = Some(fresh.clone());
+
+        fresh
+    };
+
+    drop(cache_lock);
+
     let mut games = filter_games_by_topic(&full_data, &topic);
 
     if let Some(max) = limit {
@@ -216,7 +239,8 @@ pub async fn get_games_by_topic(
 
     if provide_thumbnail.unwrap_or(false) && !games.is_empty() {
         let universe_ids: Vec<u64> = games.iter().map(|g| g.universe_id).collect();
-        let thumbnail_map = fetch_thumbnails(app, universe_ids, thumbnail_size, thumbnail_type).await;
+        let thumbnail_map =
+            fetch_thumbnails(app, universe_ids, thumbnail_size, thumbnail_type).await;
 
         for game in &mut games {
             game.thumbnail = thumbnail_map.get(&game.universe_id).cloned();
@@ -231,18 +255,22 @@ pub async fn get_games_by_topic(
 }
 
 #[tauri::command]
-pub async fn get_game_details(app: tauri::AppHandle, id: u64, get_thumbnail: Option<bool>) -> Result<(Game, Option<String>), String> {
+pub async fn get_game_details(
+    app: tauri::AppHandle,
+    id: u64,
+    get_thumbnail: Option<bool>,
+) -> Result<(Game, Option<String>), String> {
     let url = format!("https://games.roblox.com/v1/games?universeIds={}", id);
-    
+
     let thumbnail = if get_thumbnail.unwrap_or(false) {
         let thumbs = fetch_thumbnails(app.clone(), vec![id], None, None).await;
         thumbs.get(&id).cloned()
     } else {
         None
     };
-    
+
     let response = roblox_request(app, "GET".to_string(), url, None).await?;
-    
+
     let json: serde_json::Value = serde_json::from_str(&response)
         .map_err(|e| format!("Failed to parse game details JSON: {}", e))?;
 

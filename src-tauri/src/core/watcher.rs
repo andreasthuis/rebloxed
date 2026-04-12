@@ -1,5 +1,6 @@
 use linemux::MuxedLines;
 use regex::Regex;
+use tauri_plugin_log::log;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 use tokio::sync::broadcast;
@@ -42,10 +43,10 @@ impl ActivityWatcher {
 
         let log_file = if log_path.is_dir() {
             let latest = self.find_latest_log(&log_path).await?;
-            println!("Tailing latest log file: {:?}", latest);
+            log::info!("Tailing latest log file: {:?}", latest);
             latest
         } else {
-            println!("Tailing log file: {:?}", log_path);
+            log::info!("Tailing log file: {:?}", log_path);
             log_path
         };
 

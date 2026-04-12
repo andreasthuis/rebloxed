@@ -1,30 +1,30 @@
 import { useState } from "react";
 import UserProfileModal from "../User/UserProfileModal";
-
+import { UserProfile, ActiveView } from "../../types";
 interface TopbarProps {
-  user: { [key: string]: any } | null;
+  user: UserProfile | null;
+  activeView: ActiveView;
+  setView: (view: ActiveView) => void;
 }
 
-function Topbar({ user }: TopbarProps) {
+function Topbar({ user, activeView, setView }: TopbarProps) {
   const [selectedProfile, setSelectedProfile] = useState<true | false>(false);
-  
+  const menu: ActiveView[] = ["Home", "Games", "Settings"];
+
   return (
     <nav className="main-nav">
       <div className="nav-container">
         <div className="nav-left">
           <div className="nav-links">
-            <a href="#" className="nav-link active">
-              Home
-            </a>
-            <a href="#" className="nav-link">
-              Games
-            </a>
-            <a href="#" className="nav-link">
-              Catalog
-            </a>
-            <a href="#" className="nav-link">
-              Groups
-            </a>
+            {menu.map((item) => (
+              <a
+                key={item}
+                className={`nav-link ${activeView === item ? "active" : ""}`}
+                onClick={() => setView(item)}
+              >
+                {item}
+              </a>
+            ))}
           </div>
         </div>
 

@@ -1,15 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import GameModal from "../Game/GameModal";
 import { ThumbsUp, Users } from "lucide-react";
-
-type Game = {
-  id: number;
-  name: string;
-  thumbnail?: string;
-  playerCount: number;
-  [key: string]: any;
-};
-
+import { Game } from "../../types";
 interface GameCarouselProps {
   title: string;
   games: Game[];

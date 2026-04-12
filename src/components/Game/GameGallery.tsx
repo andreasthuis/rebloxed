@@ -1,15 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import GameModal from "./GameModal";
 import { ThumbsUp, Users } from "lucide-react";
-
-type Game = {
-  id: number;
-  name: string;
-  thumbnail?: string;
-  playerCount: number;
-  [key: string]: any;
-};
-
+import { Game } from "../../types";
 interface GameGalleryProps {
   title: string;
   games: Game[];

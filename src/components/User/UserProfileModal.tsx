@@ -3,21 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useBlur } from "../misc/BlurContext";
-
-interface User {
-  id: number;
-  displayName: string;
-  username: string;
-  avatarUrl: string;
-  presenceType: number;
-  isOnline: boolean;
-  presence: string;
-  gameId: string | null;
-  presenceData: any;
-  created: string;
-  description?: string;
-}
-
+import { User } from "../../types";
 interface UserProfileModalProps {
   prop: number | User;
   onClose: () => void;
