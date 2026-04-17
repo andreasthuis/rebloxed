@@ -74,3 +74,94 @@ button:active {
 .btn-secondary:hover {
   background-color: #4a4a55;
 }
+
+.dropdown {
+  position: relative;
+  margin-bottom: 0px;
+  width: 220px;
+}
+
+.dropdown label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.dropdown-span {
+  padding: 10px 15px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-main);
+}
+
+.dropdown span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-open {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  right: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  z-index: 99;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.dropdown input {
+  width: 90%;
+  padding: 8px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-main);
+  outline: none;
+}
+
+.dropdown-input {
+  padding: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dropdown-options {
+  max-height: 450px;
+  overflow-y: auto;
+}
+
+.dropdown-option {
+  padding: 8px 12px;
+  cursor: pointer;
+  color: var(--text-main);
+  background: var(--card-bg);
+  transition: background 0.2s ease;
+}
+
+.dropdown-option:hover {
+  filter: brightness(1.2);
+}
+
+.dropdown-option.selected {
+  background: var(--blue-dim);
+  color: var(--text-main);
+}
+
+.dropdown-option.selected:hover {
+  filter: brightness(1.2);
+}
+
+.dropdown-no-results {
+  padding: 10px 15px;
+  color: var(--text-dim);
+  font-size: 14px;
+}
