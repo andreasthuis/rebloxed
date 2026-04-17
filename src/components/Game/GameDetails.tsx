@@ -3,6 +3,7 @@ import { fetch } from "@tauri-apps/plugin-http";
 import { invoke } from "@tauri-apps/api/core";
 import UserProfileDetails from "../User/UserProfileModal";
 import GroupDetails from "../Group/GroupModal";
+import Linkify from "../misc/Linkify";
 
 interface GameDetailsProps {
   game: any;
@@ -144,7 +145,7 @@ const GameDetails = ({ game }: GameDetailsProps) => {
               </div>
             </div>
             <h3>About</h3>
-            <p className="description game-description">{game.description}</p>
+            <Linkify text={game.description || "No description provided."} />
           </>
         ) : (
           <div className="servers-list">

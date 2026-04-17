@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import failedPfp from "../../assets/FailedPfp.webp";
 import { User } from "../../types";
+import Linkify from "../misc/Linkify";
 
 interface Props {
   user: User;
@@ -103,7 +104,7 @@ export default function UserProfileDetails({ user }: Props) {
             </div>
 
             <h3>Bio</h3>
-            <p className="user-bio description">{user.description || "No bio provided."}</p>
+            <Linkify text={user.description || "No bio provided."} />
           </div>
         ) : (
           <div className="friends-list-tab">

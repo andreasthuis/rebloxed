@@ -45,7 +45,7 @@ Make sure you have the following tools installed:
 Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/rebloxed.git
+git clone https://github.com/andreasthuis/rebloxed.git
 cd rebloxed
 ```
 
