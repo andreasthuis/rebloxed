@@ -19,8 +19,8 @@ export interface SortEntry {
 }
 
 const DEFAULT_HARDWARE = {
-  device: "computer",
-  country: "us",
+  device: "all",
+  country: "all",
   cpu: "8",
   ram: "16GB",
   res: "1920x1080",

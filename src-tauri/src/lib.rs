@@ -12,6 +12,8 @@ use mapping::friends::get_user_friends;
 use mapping::game::{SessionCache, get_game_details, get_games_by_topic};
 use mapping::user::get_user;
 use mapping::discovery::get_discovery_sorts;
+use mapping::economy::get_currency;
+use mapping::search::search_game;
 
 use core::watcher::{ActivityWatcher, WatcherEvent};
 
@@ -76,7 +78,9 @@ pub fn run() {
             get_games_by_topic,
             get_user_friends,
             get_game_details,
-            get_discovery_sorts
+            get_discovery_sorts,
+            get_currency,
+            search_game,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

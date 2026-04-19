@@ -120,3 +120,15 @@
   border-radius: 12px;
   margin-right: 15px;
 }
+
+.nav-robux-icon {
+  height: 25px;
+  aspect-ratio: 1/1;
+  padding-right: 5px;
+}
+
+.nav-robux-counter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

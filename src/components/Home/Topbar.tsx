@@ -1,15 +1,41 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import UserProfileModal from "../User/UserProfileModal";
 import { UserProfile, ActiveView } from "../../types";
+import { invoke } from "@tauri-apps/api/core";
+import Robux from "../../assets/Robux.webp";
+
 interface TopbarProps {
   user: UserProfile | null;
   activeView: ActiveView;
-  setView: (view: ActiveView) => void;
+  setView: (view: ActiveView, params?: { query: string }) => void;
 }
 
 function Topbar({ user, activeView, setView }: TopbarProps) {
-  const [selectedProfile, setSelectedProfile] = useState<true | false>(false);
+  const [selectedProfile, setSelectedProfile] = useState<boolean>(false);
+  const [robux, setRobux] = useState<number | null>(null);
+  const [searchInput, setSearchInput] = useState("");
+
   const menu: ActiveView[] = ["Home", "Games", "Settings"];
+
+  useEffect(() => {
+    const loadRobux = async () => {
+      try {
+        let res = await invoke<number>("get_currency");
+        setRobux(res);
+      } catch (err) {
+        console.error("Failed to fetch Robux:", err);
+      }
+    };
+    loadRobux();
+  }, []);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchInput.trim()) {
+      setView("Search" as ActiveView);
+      console.log("Searching for:", searchInput);
+    }
+  };
 
   return (
     <nav className="main-nav">
@@ -29,9 +55,15 @@ function Topbar({ user, activeView, setView }: TopbarProps) {
         </div>
 
         <div className="nav-right">
-          <div className="search-bar">
-            <input type="text" placeholder="Search games..." />
-          </div>
+          <form className="search-bar" onSubmit={handleSearchSubmit}>
+            <input
+              type="text"
+              placeholder="Search games..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+            <button type="submit" style={{ display: "none" }} />
+          </form>
 
           <div className="nav-user-info">
             <span className="welcome-text">
@@ -42,8 +74,13 @@ function Topbar({ user, activeView, setView }: TopbarProps) {
                 className="nav-avatar"
                 src={user?.avatarUrl || ""}
                 alt="Profile"
+                style={{ cursor: "pointer" }}
                 onClick={() => setSelectedProfile(true)}
               />
+            </div>
+            <div className="nav-robux-counter">
+              <img className="nav-robux-icon" src={Robux} alt="robux" />
+              <p>{robux?.toLocaleString() ?? "..."}</p>
             </div>
           </div>
         </div>
