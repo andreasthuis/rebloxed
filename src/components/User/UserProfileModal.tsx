@@ -29,6 +29,8 @@ const UserProfileModal = ({ prop, onClose }: UserProfileModalProps) => {
   useEffect(() => {
     let cancelled = false;
 
+    console.log(prop);
+
     if (typeof prop === "object") {
       setUser(prop);
       setIsLoading(false);

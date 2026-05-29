@@ -27,7 +27,7 @@ export default function UserProfileDetails({ user }: Props) {
   useEffect(() => {
     if (activeTab === "friends") {
       return;
-    };
+    }
     return () => {
       abortRef.current = true;
     };
@@ -50,7 +50,9 @@ export default function UserProfileDetails({ user }: Props) {
           <p className="username">@{user.username}</p>
 
           <p className="presence-text">
-            {user.presenceData?.lastLocation ?? user.presence ?? "Offline"}
+            {user.isOnline
+              ? (user.presenceData?.lastLocation ?? user.presence ?? "Online")
+              : "Offline"}
           </p>
 
           <div className="action-buttons">

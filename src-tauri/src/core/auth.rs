@@ -32,6 +32,10 @@ pub async fn login_with_cookie(app: tauri::AppHandle, cookie: String) -> Result<
     let data: AuthResponse = res.json().await.map_err(|e| e.to_string())?;
 
     app.keyring()
+        .delete_password("rebloxed", "roblosecurity")
+        .map_err(|e| e.to_string())?;
+
+    app.keyring()
         .set_password("rebloxed", "roblosecurity", &cookie)
         .map_err(|e| e.to_string())?;
 
@@ -100,4 +104,12 @@ pub async fn wait_for_login(app: tauri::AppHandle) -> Result<u64, String> {
 
         tokio::time::sleep(std::time::Duration::from_secs(1)).await;
     }
+}
+
+#[tauri::command]
+pub async fn logout(app: tauri::AppHandle) -> Result<(), String> {
+    app.keyring()
+        .delete_password("rebloxed", "roblosecurity")
+        .map_err(|e| e.to_string())?;
+    Ok(())
 }
